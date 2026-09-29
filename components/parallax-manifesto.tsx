@@ -33,7 +33,7 @@ export function ParallaxManifesto({ manifesto }: { manifesto: string }) {
   }, []);
 
   return (
-    <section className="manifesto-section parallax-manifesto" ref={sectionRef}>
+    <section className="manifesto-section parallax-manifesto" id="approach" ref={sectionRef}>
       <div className="parallax-word" aria-hidden="true">TERRATORA</div>
       <div className="orb orb-one" /><div className="orb orb-two" />
       <div className="shell manifesto-grid" data-reveal>

@@ -294,9 +294,17 @@ button { color:inherit; }
 /* Footer */
 .site-footer { background:var(--ink); color:white; min-height:720px; position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; }
 .footer-orbit { position:absolute; inset:0; pointer-events:none; }
-.footer-orbit span { position:absolute; width:650px; aspect-ratio:1; border:1px solid rgba(212,241,244,.12); border-radius:50%; right:-110px; top:-90px; }
-.footer-orbit span:nth-child(2) { width:500px; right:-35px; top:-15px; }
-.footer-orbit span:nth-child(3) { width:340px; right:45px; top:65px; background:radial-gradient(circle at 30% 20%,var(--grotto),transparent 65%); }
+.footer-orbit span { position:absolute; width:650px; aspect-ratio:1; border:1px solid rgba(212,241,244,.12); border-radius:50%; right:-110px; top:-90px; transform-origin:center; will-change:transform,opacity; animation:footer-ring-pulse 4.8s cubic-bezier(.4,0,.2,1) infinite; }
+.footer-orbit span:nth-child(2) { width:500px; right:-35px; top:-15px; animation-delay:-1.6s; }
+.footer-orbit span:nth-child(3) { width:340px; right:45px; top:65px; border-color:rgba(212,241,244,.18); background:radial-gradient(circle at 32% 24%,rgba(212,241,244,.7),var(--grotto) 28%,rgba(24,154,180,.38) 56%,transparent 72%); box-shadow:0 0 70px rgba(24,154,180,.2),inset 0 0 60px rgba(212,241,244,.12); animation:footer-orb-breathe 3.2s ease-in-out infinite; }
+@keyframes footer-ring-pulse {
+  0%,100% { transform:scale(.96); opacity:.45; }
+  48% { transform:scale(1.045); opacity:1; border-color:rgba(212,241,244,.27); }
+}
+@keyframes footer-orb-breathe {
+  0%,100% { transform:scale(.94); opacity:.74; box-shadow:0 0 45px rgba(24,154,180,.16),inset 0 0 50px rgba(212,241,244,.1); }
+  50% { transform:scale(1.045); opacity:1; box-shadow:0 0 110px rgba(24,154,180,.38),inset 0 0 85px rgba(212,241,244,.24); }
+}
 .footer-main { padding-top:120px; position:relative; z-index:1; }
 .footer-main h2 { font-size:clamp(60px,9vw,135px); line-height:.84; letter-spacing:-.065em; font-weight:500; margin:35px 0 55px; }
 .footer-main h2 em { font-family:var(--font-newsreader); font-weight:400; color:var(--baby); }
@@ -308,14 +316,17 @@ button { color:inherit; }
 
 @media(max-width:900px) {
   :root { --pad:22px; }
+  .site-header { isolation:isolate; }
+  .site-header.is-scrolled { background:rgba(247,250,249,.98); -webkit-backdrop-filter:none; backdrop-filter:none; border-bottom:1px solid rgba(5,68,94,.1); box-shadow:0 8px 30px rgba(5,68,94,.08); }
+  .site-header.menu-is-open { background:var(--baby); -webkit-backdrop-filter:none; backdrop-filter:none; box-shadow:none; border-bottom-color:transparent; }
   .desktop-nav,.nav-cta { display:none; }
   .header-inner { grid-template-columns:1fr auto; }
   .menu-button { display:flex; width:44px; height:44px; border:1px solid var(--ink); border-radius:50%; background:transparent; flex-direction:column; justify-content:center; gap:6px; align-items:center; z-index:102; }
   .menu-button span { width:18px; height:1px; background:var(--ink); transition:.3s; }
   .menu-is-open .menu-button span:first-child { transform:translateY(3.5px) rotate(45deg); }
   .menu-is-open .menu-button span:last-child { transform:translateY(-3.5px) rotate(-45deg); }
-  .mobile-menu { display:block; position:fixed; inset:0; background:var(--baby); transform:translateY(-105%); transition:.6s cubic-bezier(.7,0,.2,1); padding:130px var(--pad) 40px; }
-  .menu-is-open .mobile-menu { transform:none; }
+  .mobile-menu { display:block; position:fixed; inset:0; background:var(--baby); transform:translateY(-105%); visibility:hidden; pointer-events:none; overflow:hidden; transition:transform .6s cubic-bezier(.7,0,.2,1),visibility 0s linear .6s; padding:130px var(--pad) 40px; }
+  .menu-is-open .mobile-menu { transform:none; visibility:visible; pointer-events:auto; transition-delay:0s; }
   .mobile-menu nav { display:flex; flex-direction:column; }
   .mobile-menu a { font-size:clamp(40px,12vw,70px); letter-spacing:-.05em; border-bottom:1px solid var(--line); padding:8px 0; }
   .mobile-menu a span { font-size:10px; letter-spacing:.1em; margin-right:20px; }
