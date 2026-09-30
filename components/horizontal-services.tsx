@@ -50,7 +50,7 @@ export function HorizontalServices({ services }: { services: Services }) {
   }, []);
 
   return (
-    <section className="horizontal-services" id="capabilities" ref={sectionRef}>
+    <section className="horizontal-services" id="capabilities" ref={sectionRef} data-color-flow="aqua">
       <div className="horizontal-stage">
         <div className="shell horizontal-heading">
           <div><p className="section-index">02 — Capabilities</p><h2>From intent<br /><em>to impact.</em></h2></div>

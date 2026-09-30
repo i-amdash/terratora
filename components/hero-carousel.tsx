@@ -50,6 +50,7 @@ export function HeroCarousel({ home }: { home: HeroContent }) {
   return (
     <section
       className="home-hero hero-carousel"
+      data-color-flow="deep"
       role="region"
       aria-roledescription="carousel"
       aria-label="Terratora capabilities"

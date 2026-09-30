@@ -4,6 +4,7 @@ import { HeroCarousel } from "@/components/hero-carousel";
 import { Marquee } from "@/components/marquee";
 import { ParallaxManifesto } from "@/components/parallax-manifesto";
 import { HorizontalServices } from "@/components/horizontal-services";
+import { AnimatedMetric } from "@/components/animated-metric";
 import { getPosts, getSiteContent } from "@/lib/content";
 
 export default async function Home() {
@@ -13,7 +14,7 @@ export default async function Home() {
     <>
       <HeroCarousel home={home} />
 
-      <section className="client-band">
+      <section className="client-band" data-color-flow="clear">
         <div className="shell"><p>Our client landscape</p></div>
         <Marquee items={home.clients} />
       </section>
@@ -22,16 +23,16 @@ export default async function Home() {
 
       <HorizontalServices services={services} />
 
-      <section className="impact-section">
+      <section className="impact-section" id="impact" data-color-flow="deep">
         <div className="shell">
           <p className="section-index light">03 — In numbers</p>
           <div className="metrics">
-            {home.metrics.map((metric) => <div key={metric.label} data-reveal><strong>{metric.value}</strong><span>{metric.label}</span></div>)}
+            {home.metrics.map((metric) => <AnimatedMetric key={metric.label} value={metric.value} label={metric.label} />)}
           </div>
         </div>
       </section>
 
-      <section className="journal-preview">
+      <section className="journal-preview" data-color-flow="warm">
         <div className="shell">
           <div className="section-heading journal-heading" data-reveal><div><p className="section-index">04 — Thinking out loud</p><h2>Ideas for the<br /><em>work ahead.</em></h2></div><Link className="text-link" href="/journal">View all thinking <ArrowRight /></Link></div>
           <div className="post-grid">

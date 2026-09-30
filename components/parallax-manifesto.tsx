@@ -24,6 +24,7 @@ export function ParallaxManifesto({ manifesto }: { manifesto: string }) {
       section.style.setProperty("--manifesto-bg", mixColor([212, 241, 244], [24, 154, 180], progress * .9));
       section.style.setProperty("--manifesto-ink", mixColor([5, 68, 94], [255, 255, 255], Math.max(0, (progress - .38) / .62)));
       section.style.setProperty("--manifesto-accent", mixColor([24, 154, 180], [212, 241, 244], progress));
+      section.style.setProperty("--manifesto-emphasis-opacity", String(Math.max(0, 1 - progress * 1.65)));
     };
     const requestUpdate = () => { if (!frame) frame = requestAnimationFrame(update); };
     update();
@@ -33,12 +34,15 @@ export function ParallaxManifesto({ manifesto }: { manifesto: string }) {
   }, []);
 
   return (
-    <section className="manifesto-section parallax-manifesto" id="approach" ref={sectionRef}>
+    <section className="manifesto-section parallax-manifesto" id="approach" ref={sectionRef} data-color-flow="grotto">
       <div className="parallax-word" aria-hidden="true">TERRATORA</div>
       <div className="orb orb-one" /><div className="orb orb-two" />
       <div className="shell manifesto-grid" data-reveal>
         <p className="section-index">01 — Our point of view</p>
-        <h2>{manifesto.split(" ").map((word, index) => <span key={index}>{word} </span>)}</h2>
+        <div className="manifesto-statement">
+          <h2>{manifesto}</h2>
+          <div className="manifesto-emphasis" aria-hidden="true"><em>with clarity</em><em>with capability</em><em>with confidence</em></div>
+        </div>
         <Link href="/about" className="circle-link" aria-label="About our approach"><ArrowUpRight /></Link>
       </div>
       <div className="parallax-note"><span>Scroll</span><i /></div>

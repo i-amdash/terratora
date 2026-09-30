@@ -5,7 +5,7 @@ import { ArrowUpRight } from "./icons";
 
 export function Footer({ content }: { content: SiteContent }) {
   return (
-    <footer className="site-footer">
+    <footer className="site-footer" data-color-flow="deep">
       <div className="footer-orbit" aria-hidden="true"><span /><span /><span /></div>
       <div className="shell footer-main" data-reveal>
         <p className="eyebrow light">Your next move</p>

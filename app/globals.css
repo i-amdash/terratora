@@ -6,6 +6,8 @@
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; }
 body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--font-space),sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+.site-color-flow { position:fixed; inset:0; z-index:75; pointer-events:none; overflow:hidden; mix-blend-mode:soft-light; }
+.site-color-flow span { position:absolute; inset:-8%; opacity:0; transition:opacity 1.35s cubic-bezier(.22,.61,.36,1); filter:saturate(1.12); transform:scale(1.08); }
 a { color:inherit; text-decoration:none; }
 button,input,textarea,select { font:inherit; }
 button { color:inherit; }
@@ -93,16 +95,17 @@ button { color:inherit; }
 .manifesto-section { min-height:92vh; background:var(--baby); display:flex; align-items:center; position:relative; overflow:hidden; }
 .parallax-manifesto { min-height:115vh; background:var(--manifesto-bg,var(--baby)); color:var(--manifesto-ink,var(--ink)); transition:background-color .12s linear,color .12s linear; isolation:isolate; }
 .parallax-manifesto .manifesto-grid { transform:translate3d(0,var(--parallax-copy,0),0); will-change:transform; }
-.parallax-manifesto .manifesto-grid h2 span:nth-child(3n) { color:var(--manifesto-accent,var(--grotto)); }
 .parallax-word { position:absolute; left:-3vw; top:50%; transform:translate3d(0,calc(-50% + var(--parallax-fast,0px)),0); font-size:clamp(120px,20vw,360px); line-height:.7; font-weight:700; letter-spacing:-.09em; color:transparent; -webkit-text-stroke:1px currentColor; opacity:.1; white-space:nowrap; pointer-events:none; will-change:transform; }
 .parallax-manifesto .orb-one { transform:translate3d(0,var(--parallax-slow,0),0); will-change:transform; }
 .parallax-manifesto .orb-two { transform:translate3d(0,var(--parallax-fast,0),0); will-change:transform; }
 .parallax-note { position:absolute; bottom:30px; left:50%; display:flex; flex-direction:column; align-items:center; gap:10px; font-size:8px; text-transform:uppercase; letter-spacing:.18em; }
 .parallax-note i { height:48px; width:1px; background:currentColor; opacity:.45; }
 .manifesto-grid { display:grid; grid-template-columns:1fr 3.2fr; gap:7vw; align-items:start; position:relative; z-index:1; }
-.manifesto-grid h2 { font-family:var(--font-newsreader),serif; font-weight:400; font-size:clamp(45px,6vw,96px); line-height:1.02; letter-spacing:-.045em; margin:0; max-width:1000px; }
-.manifesto-grid h2 span { transition:color .3s; }
-.manifesto-grid h2 span:nth-child(3n) { font-style:italic; color:var(--grotto); }
+.manifesto-statement { min-width:0; }
+.manifesto-grid h2 { font-family:var(--font-newsreader),serif; font-weight:400; font-size:clamp(45px,6vw,96px); line-height:1.02; letter-spacing:-.045em; margin:0; max-width:1000px; text-wrap:balance; }
+.manifesto-emphasis { display:flex; justify-content:flex-end; gap:12px 26px; flex-wrap:wrap; margin:32px 2% 0 12%; color:var(--manifesto-accent,var(--grotto)); opacity:var(--manifesto-emphasis-opacity,1); transition:opacity .18s linear; }
+.manifesto-emphasis em { font:italic 400 clamp(16px,1.7vw,25px)/1.1 var(--font-newsreader); white-space:nowrap; }
+.manifesto-emphasis em:not(:last-child):after { content:" /"; padding-left:26px; font-style:normal; opacity:.45; }
 .circle-link { position:absolute; right:1%; bottom:-90px; width:68px; height:68px; border-radius:50%; background:var(--ink); color:white; display:grid; place-items:center; transition:.3s; }
 .circle-link svg { width:24px; }
 .circle-link:hover { transform:rotate(45deg); background:var(--grotto); }
@@ -177,7 +180,7 @@ button { color:inherit; }
 .impact-section .shell { position:relative; }
 .metrics { display:grid; grid-template-columns:repeat(3,1fr); }
 .metrics>div { min-height:260px; padding:25px 35px; display:flex; flex-direction:column; justify-content:space-between; border-left:1px solid rgba(212,241,244,.25); }
-.metrics strong { font-family:var(--font-newsreader),serif; font-size:clamp(75px,10vw,150px); font-weight:400; letter-spacing:-.07em; color:var(--baby); line-height:1; }
+.metrics strong { font-family:var(--font-newsreader),serif; font-size:clamp(75px,10vw,150px); font-weight:400; font-variant-numeric:tabular-nums lining-nums; letter-spacing:-.07em; color:var(--baby); line-height:1; }
 .metrics span { max-width:150px; font-size:12px; text-transform:uppercase; line-height:1.5; letter-spacing:.1em; }
 
 /* Posts */
@@ -397,7 +400,7 @@ button { color:inherit; }
 .footer-main { padding-top:120px; position:relative; z-index:1; }
 .footer-main h2 { font-size:clamp(60px,9vw,135px); line-height:.84; letter-spacing:-.065em; font-weight:500; margin:35px 0 55px; }
 .footer-main h2 em { font-family:var(--font-newsreader); font-weight:400; color:var(--baby); }
-.footer-email { font-size:clamp(18px,2vw,30px); display:inline-flex; align-items:center; gap:20px; border-bottom:1px solid white; padding-bottom:7px; }
+.footer-email { font-size:clamp(14px,1.4vw,21px); display:inline-flex; align-items:center; gap:16px; border-bottom:1px solid white; padding-bottom:7px; }
 .footer-email svg { width:25px; }
 .footer-bottom { display:grid; grid-template-columns:1fr 1fr 1fr; align-items:end; padding-bottom:35px; position:relative; z-index:1; }
 .footer-links { display:flex; justify-content:center; gap:23px; font-size:11px; }
@@ -431,6 +434,7 @@ button { color:inherit; }
   .page-hero .lede { margin:0; max-width:620px; }
   .manifesto-grid,.section-heading,.story-grid,.contact-top,.contact-body { grid-template-columns:1fr; }
   .manifesto-grid { gap:30px; }
+  .manifesto-emphasis { justify-content:flex-start; margin-left:0; margin-right:0; }
   .service-rail { margin-left:var(--pad); width:calc(100% - var(--pad)); padding-right:var(--pad); }
   .metrics { grid-template-columns:1fr; }
   .metrics>div { min-height:190px; border-left:0; border-top:1px solid rgba(212,241,244,.25); }
@@ -487,6 +491,8 @@ button { color:inherit; }
   .hero-pagination { gap:5px; }
   .manifesto-section { min-height:700px; }
   .manifesto-grid h2 { font-size:44px; }
+  .manifesto-emphasis { gap:10px 15px; margin-top:24px; }
+  .manifesto-emphasis em:not(:last-child):after { padding-left:15px; }
   .parallax-manifesto { min-height:780px; }
   .parallax-word { font-size:155px; }
   .circle-link { bottom:-90px; }
@@ -552,4 +558,5 @@ button { color:inherit; }
   .horizontal-stage { position:relative; height:auto; padding:0; }
   .horizontal-viewport { overflow-x:auto; margin-top:50px; }
   .horizontal-track { transform:none!important; }
+  .site-color-flow span { transition:none!important; }
 }

@@ -19,7 +19,7 @@ export function PageHero({
   crumbs: Crumb[];
 }) {
   return (
-    <section className="page-hero image-page-hero">
+    <section className="page-hero image-page-hero" data-color-flow="deep">
       <div className="page-hero-media" aria-hidden="true">
         <Image src={image} alt="" fill sizes="100vw" quality={75} preload style={{ objectFit: "cover", objectPosition: imagePosition }} />
       </div>
