@@ -17,6 +17,14 @@ export async function saveSubmission(table: "messages" | "bookings", payload: Re
   const client = createAdminClient();
   if (!client) throw new Error("The enquiry service is not configured yet. Please email us directly.");
   const { error } = await client.from(table).insert(payload);
+  if (error && table === "bookings" && payload.timezone && /timezone/i.test(error.message)) {
+    const fallback = { ...payload };
+    const timezone = fallback.timezone;
+    delete fallback.timezone;
+    fallback.message = `[Timezone: ${timezone}]\n\n${fallback.message}`;
+    const { error: fallbackError } = await client.from(table).insert(fallback);
+    if (!fallbackError) return;
+  }
   if (error) throw new Error("We could not save your request. Please try again.");
 }
 

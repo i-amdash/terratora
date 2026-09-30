@@ -9,7 +9,8 @@ import { ArrowUpRight } from "./icons";
 const links = [
   ["/about", "About"],
   ["/services", "Services"],
-  ["/journal", "Journal"],
+  ["/journal", "Publications"],
+  ["/careers", "Careers"],
   ["/contact", "Contact"],
 ];
 
@@ -27,7 +28,7 @@ export function Header() {
 
   useEffect(() => setOpen(false), [pathname]);
 
-  const hasImageHero = pathname === "/" || ["/about", "/services", "/journal", "/contact", "/book"].includes(pathname) || pathname.startsWith("/journal/");
+  const hasImageHero = pathname === "/" || ["/about", "/services", "/journal", "/careers", "/contact", "/book", "/privacy", "/cookies"].includes(pathname) || pathname.startsWith("/journal/");
   const isOverHero = hasImageHero && !scrolled && !open;
 
   return (
@@ -45,7 +46,7 @@ export function Header() {
       <div className="mobile-menu">
         <nav aria-label="Mobile navigation">
           {links.map(([href, label], index) => <Link key={href} href={href}><span>0{index + 1}</span>{label}</Link>)}
-          <Link href="/book"><span>05</span>Book a session</Link>
+          <Link href="/book"><span>0{links.length + 1}</span>Book a session</Link>
         </nav>
       </div>
     </header>

@@ -15,7 +15,7 @@ export default async function Home() {
       <HeroCarousel home={home} />
 
       <section className="client-band" data-color-flow="clear">
-        <div className="shell"><p>Our client landscape</p></div>
+        <div className="shell client-band-heading"><p>Our client landscape</p><p>{home.clientIntro}</p></div>
         <Marquee items={home.clients} />
       </section>
 
@@ -32,9 +32,16 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="home-cta" data-color-flow="aqua">
+        <div className="shell home-cta-grid" data-reveal>
+          <p className="section-index">04 — Your next step</p>
+          <div><h2>{home.ctaTitle}</h2><p>{home.ctaText}</p><Link className="button button-dark" href="/contact">Start a conversation <ArrowRight /></Link></div>
+        </div>
+      </section>
+
       <section className="journal-preview" data-color-flow="warm">
         <div className="shell">
-          <div className="section-heading journal-heading" data-reveal><div><p className="section-index">04 — Thinking out loud</p><h2>Ideas for the<br /><em>work ahead.</em></h2></div><Link className="text-link" href="/journal">View all thinking <ArrowRight /></Link></div>
+          <div className="section-heading journal-heading" data-reveal><div><p className="section-index">05 — Publications</p><h2>Ideas for the<br /><em>work ahead.</em></h2></div><Link className="text-link" href="/journal">View all publications <ArrowRight /></Link></div>
           <div className="post-grid">
             {posts.slice(0, 3).map((post, index) => <Link href={`/journal/${post.slug}`} className={`post-card ${index === 0 ? "featured" : ""}`} key={post.slug} data-reveal><div className="post-art"><span>{index === 0 ? "↗" : index === 1 ? "◯" : "✦"}</span></div><p>{post.category} · {new Date(post.published_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</p><h3>{post.title}</h3><span className="post-arrow"><ArrowUpRight /></span></Link>)}
           </div>

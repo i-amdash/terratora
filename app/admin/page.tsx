@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AdminDashboard } from "@/components/admin-dashboard";
 import { AdminLogin } from "@/components/admin-login";
 import { defaultContent, defaultPosts } from "@/lib/default-content";
+import { mergeSiteContent } from "@/lib/content";
 import { requireAdmin } from "@/lib/supabase/auth";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/server";
 
@@ -18,14 +19,6 @@ export default async function AdminPage() {
     client.from("bookings").select("*").order("created_at",{ascending:false}),
   ]) : [{data:null},{data:null},{data:null},{data:null}];
   const saved = (contentResult.data?.content ?? {}) as Partial<typeof defaultContent>;
-  const content = {
-    ...defaultContent,
-    ...saved,
-    global: { ...defaultContent.global, ...saved.global },
-    home: { ...defaultContent.home, ...saved.home },
-    about: { ...defaultContent.about, ...saved.about },
-    services: { ...defaultContent.services, ...saved.services },
-    contact: { ...defaultContent.contact, ...saved.contact },
-  };
+  const content = mergeSiteContent(saved);
   return <AdminDashboard email={user.email ?? "Admin"} content={content} posts={(postsResult.data ?? defaultPosts)} messages={(messagesResult.data ?? [])} bookings={(bookingsResult.data ?? [])} />;
 }

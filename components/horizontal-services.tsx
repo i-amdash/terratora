@@ -6,6 +6,7 @@ import type { SiteContent } from "@/lib/types";
 import { ArrowUpRight } from "./icons";
 
 type Services = SiteContent["services"];
+const symbols = ["◒", "✣", "⌁", "◎", "◇", "✦", "◐"];
 
 export function HorizontalServices({ services }: { services: Services }) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -62,7 +63,7 @@ export function HorizontalServices({ services }: { services: Services }) {
             {services.items.map((service, index) => (
               <article className={`horizontal-card horizontal-card-${index + 1}`} key={service.title}>
                 <div className="horizontal-card-top"><span>{service.number}</span><span>Terratora / Capability</span></div>
-                <div className="horizontal-symbol" aria-hidden="true">{index === 0 ? "◒" : index === 1 ? "✣" : index === 2 ? "⌁" : "◎"}</div>
+                <div className="horizontal-symbol" aria-hidden="true">{symbols[index % symbols.length]}</div>
                 <div className="horizontal-card-copy"><h3>{service.title}</h3><p>{service.summary}</p></div>
                 <Link href="/services" aria-label={`Explore ${service.title}`}><ArrowUpRight /></Link>
               </article>
@@ -74,7 +75,7 @@ export function HorizontalServices({ services }: { services: Services }) {
             <div className="horizontal-spacer end" aria-hidden="true" />
           </div>
         </div>
-        <div className="shell horizontal-progress"><span className="horizontal-instruction">Keep scrolling down <i>↓</i> We&apos;ll move sideways</span><div><span ref={progressRef} /></div><strong>04</strong></div>
+        <div className="shell horizontal-progress"><span className="horizontal-instruction">Keep scrolling down <i>↓</i> We&apos;ll move sideways</span><div><span ref={progressRef} /></div><strong>{String(services.items.length).padStart(2, "0")}</strong></div>
       </div>
     </section>
   );

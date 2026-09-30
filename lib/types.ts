@@ -11,6 +11,9 @@ export type SiteContent = {
     titleAccent: string;
     intro: string;
     manifesto: string;
+    clientIntro: string;
+    ctaTitle: string;
+    ctaText: string;
     clients: string[];
     metrics: { value: string; label: string }[];
     heroSlides: {
@@ -25,13 +28,16 @@ export type SiteContent = {
     title: string;
     intro: string;
     body: string;
+    vision: string;
+    mission: string;
     principles: { number: string; title: string; text: string }[];
   };
   services: {
     eyebrow: string;
     title: string;
     intro: string;
-    items: { number: string; title: string; summary: string; deliverables: string[] }[];
+    items: { number: string; title: string; summary: string; body: string; deliverables: string[] }[];
+    startingPoints: { situation: string; service: string }[];
   };
   contact: {
     eyebrow: string;

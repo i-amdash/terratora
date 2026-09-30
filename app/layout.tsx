@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer";
 import { RevealProvider } from "@/components/reveal";
 import { PageTransition } from "@/components/page-transition";
 import { ColorFlow } from "@/components/color-flow";
+import { CookieConsent } from "@/components/cookie-consent";
 import { getSiteContent } from "@/lib/content";
 import "@fontsource-variable/space-grotesk";
 import "@fontsource-variable/newsreader";
@@ -19,5 +20,5 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const content = await getSiteContent();
-  return <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning><body className="antialiased" suppressHydrationWarning><RevealProvider /><ColorFlow /><Header /><main><PageTransition>{children}</PageTransition></main><Footer content={content} /></body></html>;
+  return <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning><body className="antialiased" suppressHydrationWarning><RevealProvider /><ColorFlow /><Header /><main><PageTransition>{children}</PageTransition></main><Footer content={content} /><CookieConsent /></body></html>;
 }

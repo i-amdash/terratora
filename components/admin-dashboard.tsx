@@ -48,12 +48,16 @@ export function AdminDashboard({ content, posts, messages, bookings, email }: { 
       {tab === "content" && <AdminContentEditor value={draft} onChange={setDraft} onSave={saveContent} />}
       {tab === "journal" && <div><div className="admin-grid"><div className="admin-card"><h2>{editingSlug ? "Edit article" : "New article"}</h2><label className="field"><span>Article title</span><input value={String(postDraft.title ?? "")} onChange={(e) => updatePostTitle(e.target.value)} /></label><label className="field"><span>Web address</span><input value={String(postDraft.slug ?? "")} onChange={(e) => setPostDraft({...postDraft,slug:e.target.value})} /><small className="field-help">Created automatically from the title. Use lowercase words separated by hyphens.</small></label><label className="field"><span>Short summary</span><textarea rows={3} value={String(postDraft.excerpt ?? "")} onChange={(e) => setPostDraft({...postDraft,excerpt:e.target.value})} /></label><label className="field"><span>Category</span><input value={String(postDraft.category ?? "")} onChange={(e) => setPostDraft({...postDraft,category:e.target.value})} /></label><label className="field"><span>Article body</span><textarea rows={12} value={postDraft.body} onChange={(e) => setPostDraft({...postDraft,body:e.target.value})} /></label><div className="admin-actions"><button className="button button-dark" onClick={addPost}>{editingSlug ? "Save changes →" : "Publish article →"}</button>{editingSlug && <button className="text-button" onClick={() => { setEditingSlug(null); setPostDraft({ title:"",slug:"",excerpt:"",body:"",category:"Perspective",published_at:new Date().toISOString().slice(0,10) }); }}>Cancel</button>}</div></div><div className="admin-card"><h2>Published articles</h2>{posts.map((post) => <div className="admin-list-item" key={post.slug}><div><strong>{post.title}</strong><span>{post.category}</span></div><div className="admin-item-actions"><button onClick={() => editPost(post)}>Edit</button><a href={`/journal/${post.slug}`} target="_blank">View ↗</a><button className="danger" onClick={() => deletePost(post.slug)}>Delete</button></div></div>)}</div></div></div>}
       {tab === "messages" && <RecordList rows={messages} empty="No messages yet." fields={["first_name","last_name","email","organisation","interest","message","created_at"]} />}
-      {tab === "bookings" && <RecordList rows={bookings} empty="No session requests yet." fields={["first_name","last_name","email","organisation","session_type","preferred_date","preferred_time","message","status"]} />}
+      {tab === "bookings" && <RecordList rows={bookings} empty="No session requests yet." fields={["first_name","last_name","email","organisation","session_type","preferred_date","preferred_time","timezone","message","status"]} />}
     </section>
   </div>;
 }
 
 function RecordList({ rows, fields, empty }: { rows: RecordItem[]; fields: string[]; empty: string }) {
   if (!rows.length) return <div className="empty-state">{empty}</div>;
-  return <div className="records">{rows.map((row, index) => <article className="record" key={index}>{fields.map((field) => row[field] != null && <div key={field}><span>{field.replaceAll("_"," ")}</span><p>{String(row[field])}</p></div>)}</article>)}</div>;
+  return <div className="records">{rows.map((row, index) => <article className="record" key={index}>{fields.map((field) => {
+    const fallbackTimezone = field === "timezone" && typeof row.message === "string" ? row.message.match(/^\[Timezone: ([^\]]+)\]/)?.[1] : undefined;
+    const fieldValue = row[field] ?? fallbackTimezone;
+    return fieldValue != null && <div key={field}><span>{field.replaceAll("_"," ")}</span><p>{String(fieldValue)}</p></div>;
+  })}</article>)}</div>;
 }

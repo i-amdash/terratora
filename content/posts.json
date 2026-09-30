@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "strategy-needs-friction",
+    "title": "What ESG readiness actually reveals",
+    "excerpt": "A readiness assessment is not simply a compliance exercise. It shows whether governance, data and reporting can support credible decisions.",
+    "body": "As sustainability reporting becomes more structured, many organisations begin by asking what they need to disclose. A stronger starting question is whether the organisation can consistently produce the information those disclosures require.\n\nReadiness depends on connected responsibilities, governance, data ownership, processes and internal controls. A clear assessment exposes where information is fragmented, where accountability is unclear and where current practices may not support reliable reporting.\n\nThe value is not only a list of gaps. It is a prioritised path from the current state to a reporting-ready organisation—one that can respond to requirements with greater confidence and use sustainability information in better business decisions.",
+    "category": "ESG readiness",
+    "published_at": "2026-08-18",
+    "featured": true,
+    "published": true
+  },
+  {
+    "slug": "change-is-a-design-problem",
+    "title": "Credible sustainability reporting is an operating model",
+    "excerpt": "Reliable disclosure depends on the responsibilities, workflows and controls behind the final report.",
+    "body": "A sustainability report may be the visible output, but credible reporting is built much earlier. It starts with clear governance, defined ownership and repeatable processes for collecting, reviewing and approving information.\n\nWhen ESG information sits across finance, risk, operations, procurement and other functions, reporting cannot be treated as a once-a-year writing exercise. Data flows, evidence, controls and escalation routes need to work as an operating model.\n\nOrganisations that build this capability deliberately are better placed to produce consistent disclosures, respond to scrutiny and use sustainability information in strategy and risk decisions.",
+    "category": "Reporting advisory",
+    "published_at": "2026-07-04",
+    "featured": false,
+    "published": true
+  },
+  {
+    "slug": "the-value-of-not-knowing",
+    "title": "The questions boards should ask about ESG information",
+    "excerpt": "Board oversight improves when directors can test where sustainability information comes from, who owns it and how it is controlled.",
+    "body": "Board-level ESG oversight is not only about receiving more metrics. Directors need to understand which sustainability matters are material, how those matters connect to strategy and risk, and whether the information reaching the board is dependable.\n\nUseful questions include: who owns each critical data point, what review and approval controls exist, which assumptions shape forward-looking information, and how gaps or exceptions are escalated?\n\nThese questions help boards move from general awareness to effective oversight. They also create the conditions for reporting that can stand up to stakeholder, regulatory and assurance expectations.",
+    "category": "Board briefing",
+    "published_at": "2026-05-22",
+    "featured": false,
+    "published": true
+  }
+]

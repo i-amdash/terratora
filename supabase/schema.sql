@@ -46,11 +46,18 @@ create table if not exists public.bookings (
   organisation text,
   preferred_date date not null,
   preferred_time time not null,
+  timezone text not null default 'Africa/Lagos',
   session_type text not null,
   message text not null,
   status text not null default 'pending',
   created_at timestamptz not null default now()
 );
+
+-- Keep existing projects compatible when this file is run again.
+alter table public.bookings add column if not exists timezone text;
+update public.bookings set timezone = 'Africa/Lagos' where timezone is null;
+alter table public.bookings alter column timezone set default 'Africa/Lagos';
+alter table public.bookings alter column timezone set not null;
 
 alter table public.admin_users enable row level security;
 alter table public.site_content enable row level security;
