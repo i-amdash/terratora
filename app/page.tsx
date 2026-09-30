@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "@/components/icons";
+import { HeroCarousel } from "@/components/hero-carousel";
 import { Marquee } from "@/components/marquee";
 import { ParallaxManifesto } from "@/components/parallax-manifesto";
 import { HorizontalServices } from "@/components/horizontal-services";
@@ -10,23 +11,10 @@ export default async function Home() {
   const { home, services } = content;
   return (
     <>
-      <section className="home-hero">
-        <div className="hero-glow" aria-hidden="true" />
-        <div className="shell hero-grid">
-          <div className="hero-copy">
-            <p className="eyebrow hero-eyebrow"><span />{home.eyebrow}</p>
-            <h1><span>{home.title}</span><em>{home.titleAccent}</em></h1>
-          </div>
-          <div className="hero-aside">
-            <p>{home.intro}</p>
-            <Link href="/about" className="text-link">Discover Terratora <ArrowRight /></Link>
-          </div>
-          <div className="scroll-cue"><span>Scroll to explore</span><i /></div>
-        </div>
-      </section>
+      <HeroCarousel home={home} />
 
       <section className="client-band">
-        <div className="shell"><p>Trusted by teams at</p></div>
+        <div className="shell"><p>Our client landscape</p></div>
         <Marquee items={home.clients} />
       </section>
 

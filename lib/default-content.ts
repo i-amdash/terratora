@@ -2,22 +2,30 @@ import type { Post, SiteContent } from "./types";
 
 export const defaultContent: SiteContent = {
   global: {
-    email: "hello@terratora.com",
-    phone: "+234 000 000 0000",
-    location: "Lagos · London · Everywhere",
-    announcement: "Now partnering with teams for Q1 2027",
+    email: "engage@terratoraconsulting.com",
+    phone: "",
+    location: "Nigeria · Africa · Global markets",
+    announcement: "ESG and Sustainability Advisory",
   },
   home: {
-    eyebrow: "Strategy · Transformation · Growth",
-    title: "We turn difficult",
-    titleAccent: "questions into momentum.",
-    intro: "Terratora is the strategic partner for leaders navigating a world that refuses to stand still. We make complexity useful—and progress inevitable.",
-    manifesto: "The future does not arrive fully formed. It is shaped by the people willing to question, test, and move with intention.",
-    clients: ["BLOOM", "NORTH/01", "AFRICA NEXT", "MERIDIAN", "FOUNDARY", "NOVA"],
+    eyebrow: "ESG · Sustainability · Reporting",
+    title: "Navigate ESG change.",
+    titleAccent: "Build lasting value.",
+    intro: "Terratora helps organisations translate sustainability requirements into practical action, reliable information and stronger business capability.",
+    manifesto: "We identify the gap and help close it—building the governance, data and reporting capability organisations need to move from evolving requirements to confident action.",
+    clients: ["FINANCIAL SERVICES", "ENERGY & RESOURCES", "MANUFACTURING", "CONSUMER & RETAIL", "INFRASTRUCTURE", "PROFESSIONAL SERVICES", "PUBLIC & PRIVATE COMPANIES"],
     metrics: [
-      { value: "24+", label: "Organisations moved forward" },
-      { value: "08", label: "Markets reached" },
-      { value: "92%", label: "Client referral rate" },
+      { value: "07", label: "Integrated ESG solutions" },
+      { value: "S1/S2", label: "IFRS sustainability standards" },
+      { value: "360°", label: "Governance, data and reporting" },
+    ],
+    heroSlides: [
+      { image: "/images/hero/global-markets.jpg", position: "38% 64%", label: "Nigeria · Africa · Global markets", caption: "Navigate ESG change with a clearer view of what comes next." },
+      { image: "/images/hero/sustainable-business.jpg", position: "50% 52%", label: "ESG readiness", caption: "Turn evolving requirements into practical business action." },
+      { image: "/images/hero/reporting.jpg", position: "50% 48%", label: "Credible reporting", caption: "Build reliable information, reporting processes and stronger capability." },
+      { image: "/images/hero/operations.jpg", position: "54% 52%", label: "Operational resilience", caption: "Connect sustainability expectations to the realities of your operations." },
+      { image: "/images/hero/supply-chain.jpg", position: "45% 48%", label: "Supply-chain visibility", caption: "See beyond suppliers and understand risk across your value chain." },
+      { image: "/images/hero/governance.jpg", position: "50% 52%", label: "Governance and controls", caption: "Create the oversight and accountability behind confident decisions." },
     ],
   },
   about: {

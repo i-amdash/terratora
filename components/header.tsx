@@ -27,10 +27,13 @@ export function Header() {
 
   useEffect(() => setOpen(false), [pathname]);
 
+  const hasImageHero = pathname === "/" || ["/about", "/services", "/journal", "/contact", "/book"].includes(pathname) || pathname.startsWith("/journal/");
+  const isOverHero = hasImageHero && !scrolled && !open;
+
   return (
-    <header className={`site-header ${scrolled ? "is-scrolled" : ""} ${open ? "menu-is-open" : ""}`}>
+    <header className={`site-header ${scrolled ? "is-scrolled" : ""} ${open ? "menu-is-open" : ""} ${isOverHero ? "header-on-image" : ""}`}>
       <div className="header-inner">
-        <Logo />
+        <Logo light={isOverHero} />
         <nav className="desktop-nav" aria-label="Main navigation">
           {links.map(([href, label]) => <Link key={href} href={href} className={pathname === href ? "active" : ""}>{label}</Link>)}
         </nav>

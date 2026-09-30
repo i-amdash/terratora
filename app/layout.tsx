@@ -10,8 +10,8 @@ import "@fontsource-variable/newsreader/wght-italic.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Terratora — Think clearly. Move boldly.", template: "%s — Terratora" },
-  description: "Terratora is the strategic partner for leaders navigating a world that refuses to stand still.",
+  title: { default: "Terratora — ESG & Sustainability Advisory", template: "%s — Terratora" },
+  description: "Terratora helps organisations translate sustainability requirements into practical action, reliable information and stronger business capability.",
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };

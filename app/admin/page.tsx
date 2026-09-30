@@ -17,5 +17,15 @@ export default async function AdminPage() {
     client.from("messages").select("*").order("created_at",{ascending:false}),
     client.from("bookings").select("*").order("created_at",{ascending:false}),
   ]) : [{data:null},{data:null},{data:null},{data:null}];
-  return <AdminDashboard email={user.email ?? "Admin"} content={(contentResult.data?.content ?? defaultContent)} posts={(postsResult.data ?? defaultPosts)} messages={(messagesResult.data ?? [])} bookings={(bookingsResult.data ?? [])} />;
+  const saved = (contentResult.data?.content ?? {}) as Partial<typeof defaultContent>;
+  const content = {
+    ...defaultContent,
+    ...saved,
+    global: { ...defaultContent.global, ...saved.global },
+    home: { ...defaultContent.home, ...saved.home },
+    about: { ...defaultContent.about, ...saved.about },
+    services: { ...defaultContent.services, ...saved.services },
+    contact: { ...defaultContent.contact, ...saved.contact },
+  };
+  return <AdminDashboard email={user.email ?? "Admin"} content={content} posts={(postsResult.data ?? defaultPosts)} messages={(messagesResult.data ?? [])} bookings={(bookingsResult.data ?? [])} />;
 }

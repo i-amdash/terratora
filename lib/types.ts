@@ -13,6 +13,12 @@ export type SiteContent = {
     manifesto: string;
     clients: string[];
     metrics: { value: string; label: string }[];
+    heroSlides: {
+      image: string;
+      position: string;
+      label: string;
+      caption: string;
+    }[];
   };
   about: {
     eyebrow: string;

@@ -8,7 +8,17 @@ export async function getSiteContent(): Promise<SiteContent> {
   const supabase = createPublicClient();
   if (!supabase) return defaultContent;
   const { data } = await supabase.from("site_content").select("content").eq("id", "main").maybeSingle();
-  return (data?.content as SiteContent) ?? defaultContent;
+  if (!data?.content) return defaultContent;
+  const saved = data.content as Partial<SiteContent>;
+  return {
+    ...defaultContent,
+    ...saved,
+    global: { ...defaultContent.global, ...saved.global },
+    home: { ...defaultContent.home, ...saved.home },
+    about: { ...defaultContent.about, ...saved.about },
+    services: { ...defaultContent.services, ...saved.services },
+    contact: { ...defaultContent.contact, ...saved.contact },
+  };
 }
 
 export async function getPosts(): Promise<Post[]> {
