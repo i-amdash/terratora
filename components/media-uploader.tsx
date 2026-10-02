@@ -7,11 +7,13 @@ export function MediaUploader({
   onChange,
   label = "Image",
   publication = false,
+  avatar = false,
 }: {
   value?: string;
   onChange: (value: string) => void;
   label?: string;
   publication?: boolean;
+  avatar?: boolean;
 }) {
   const [status, setStatus] = useState("");
 
@@ -36,6 +38,17 @@ export function MediaUploader({
         return;
       }
     }
+    if (avatar) {
+      const bitmap = await createImageBitmap(file);
+      const width = bitmap.width;
+      const height = bitmap.height;
+      const ratio = width / height;
+      bitmap.close();
+      if (width < 300 || height < 300 || ratio < 0.8 || ratio > 1.2) {
+        setStatus("Author avatars must be at least 300 × 300 px and approximately square.");
+        return;
+      }
+    }
 
     setStatus("Uploading…");
     const data = new FormData();
@@ -51,9 +64,9 @@ export function MediaUploader({
   }
 
   return (
-    <div className="media-uploader">
+    <div className={`media-uploader ${avatar ? "avatar-uploader" : ""}`}>
       <div className="media-uploader-heading">
-        <div><strong>{label}</strong><small>{publication ? "1600 × 1000 px recommended. Minimum 1200 × 750 px; JPEG, PNG or WebP; maximum 8 MB." : "JPEG, PNG or WebP; maximum 8 MB."}</small></div>
+        <div><strong>{label}</strong><small>{publication ? "1600 × 1000 px recommended. Minimum 1200 × 750 px; JPEG, PNG or WebP; maximum 8 MB." : avatar ? "Square image recommended. Minimum 300 × 300 px; maximum 8 MB." : "JPEG, PNG or WebP; maximum 8 MB."}</small></div>
         {value && <button type="button" onClick={() => onChange("")}>Remove image</button>}
       </div>
       {value && <div className="media-preview">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={value} alt="Current upload preview" /></div>}

@@ -44,8 +44,9 @@ export function AdminContentEditor({
           <p>Changes appear on the website after you select “Publish changes”.</p>
         </div>
         <nav>
-          {sections.map((item) => (
+          {sections.map((item, index) => (
             <button type="button" className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)} key={item.id}>
+              <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
               <strong>{item.label}</strong>
               <small>{item.description}</small>
             </button>

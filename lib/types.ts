@@ -56,5 +56,9 @@ export type Post = {
   category: string;
   published_at: string;
   image_url?: string;
+  author_name?: string;
+  author_avatar_url?: string;
   featured?: boolean;
+  read_count?: number;
+  share_count?: number;
 };

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="terratora-favicon" x1="8" y1="4" x2="54" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9BDFE7"/>
+      <stop offset=".48" stop-color="#189AB4"/>
+      <stop offset="1" stop-color="#05708C"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="#F7FAF9"/>
+  <path fill="url(#terratora-favicon)" d="M10 10h44a6 6 0 0 1 6 6v3a6 6 0 0 1-6 6H41v27a9 9 0 0 1-18 0V25H10a6 6 0 0 1-6-6v-3a6 6 0 0 1 6-6Z"/>
+</svg>
