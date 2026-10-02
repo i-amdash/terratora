@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "@/components/icons";
+import { ArrowRight } from "@/components/icons";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { Marquee } from "@/components/marquee";
 import { ParallaxManifesto } from "@/components/parallax-manifesto";
 import { HorizontalServices } from "@/components/horizontal-services";
-import { AnimatedMetric } from "@/components/animated-metric";
+import { OrganisationCarousel } from "@/components/organisation-carousel";
 import { getPosts, getSiteContent } from "@/lib/content";
 
 export default async function Home() {
@@ -23,27 +23,20 @@ export default async function Home() {
 
       <HorizontalServices services={services} />
 
-      <section className="impact-section" id="impact" data-color-flow="deep">
-        <div className="shell">
-          <p className="section-index light">03 — In numbers</p>
-          <div className="metrics">
-            {home.metrics.map((metric) => <AnimatedMetric key={metric.label} value={metric.value} label={metric.label} />)}
-          </div>
-        </div>
-      </section>
+      {home.organisations.length > 0 && <OrganisationCarousel organisations={home.organisations} />}
 
       <section className="home-cta" data-color-flow="aqua">
         <div className="shell home-cta-grid" data-reveal>
-          <p className="section-index">04 — Your next step</p>
+          <p className="section-index">Your next step</p>
           <div><h2>{home.ctaTitle}</h2><p>{home.ctaText}</p><Link className="button button-dark" href="/contact">Start a conversation <ArrowRight /></Link></div>
         </div>
       </section>
 
       <section className="journal-preview" data-color-flow="warm">
         <div className="shell">
-          <div className="section-heading journal-heading" data-reveal><div><p className="section-index">05 — Publications</p><h2>Ideas for the<br /><em>work ahead.</em></h2></div><Link className="text-link" href="/journal">View all publications <ArrowRight /></Link></div>
+          <div className="section-heading journal-heading" data-reveal><div><p className="section-index">Publications</p><h2>Ideas for the<br /><em>work ahead.</em></h2></div><Link className="text-link" href="/journal">View all publications <ArrowRight /></Link></div>
           <div className="post-grid">
-            {posts.slice(0, 3).map((post, index) => <Link href={`/journal/${post.slug}`} className={`post-card ${index === 0 ? "featured" : ""}`} key={post.slug} data-reveal><div className="post-art"><span>{index === 0 ? "↗" : index === 1 ? "◯" : "✦"}</span></div><p>{post.category} · {new Date(post.published_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</p><h3>{post.title}</h3><span className="post-arrow"><ArrowUpRight /></span></Link>)}
+            {posts.slice(0, 3).map((post, index) => <Link href={`/journal/${post.slug}`} className={`post-card ${index === 0 ? "featured" : ""}`} key={post.slug} data-reveal><div className="post-art">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={post.image_url || "/images/hero/reporting.jpg"} alt="" /></div><p>{post.category} · {new Date(post.published_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</p><h3>{post.title}</h3><span className="post-arrow"><ArrowRight /></span></Link>)}
           </div>
         </div>
       </section>

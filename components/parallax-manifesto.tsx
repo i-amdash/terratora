@@ -37,8 +37,8 @@ export function ParallaxManifesto({ manifesto }: { manifesto: string }) {
     <section className="manifesto-section parallax-manifesto" id="approach" ref={sectionRef} data-color-flow="grotto">
       <div className="parallax-word" aria-hidden="true">TERRATORA</div>
       <div className="orb orb-one" /><div className="orb orb-two" />
-      <div className="shell manifesto-grid" data-reveal>
-        <p className="section-index">01 — Our point of view</p>
+      <div className="shell manifesto-grid">
+        <p className="section-index">Our point of view</p>
         <div className="manifesto-statement">
           <h2>{manifesto}</h2>
           <div className="manifesto-emphasis" aria-hidden="true"><em>with clarity</em><em>with capability</em><em>with confidence</em></div>

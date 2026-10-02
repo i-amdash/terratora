@@ -32,9 +32,14 @@ async function seed() {
   if (contentError) throw new Error(`site_content: ${contentError.message}`);
   console.log("✓ Site content upserted");
 
-  const { error: postsError } = await supabase
+  let { error: postsError } = await supabase
     .from("posts")
     .upsert(posts, { onConflict: "slug" });
+  if (postsError && /image_url/i.test(postsError.message)) {
+    console.warn("• posts.image_url is not available yet; apply supabase/migrations/20261002_client_review_updates.sql to enable publication images.");
+    const compatiblePosts = posts.map(({ image_url, ...post }) => post);
+    ({ error: postsError } = await supabase.from("posts").upsert(compatiblePosts, { onConflict: "slug" }));
+  }
   if (postsError) throw new Error(`posts: ${postsError.message}`);
   console.log(`✓ ${posts.length} journal posts upserted`);
 

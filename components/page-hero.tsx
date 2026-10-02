@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 type Crumb = { label: string; href?: string };
@@ -21,7 +20,9 @@ export function PageHero({
   return (
     <section className="page-hero image-page-hero" data-color-flow="deep">
       <div className="page-hero-media" aria-hidden="true">
-        <Image src={image} alt="" fill sizes="100vw" quality={75} preload style={{ objectFit: "cover", objectPosition: imagePosition }} />
+        {/* Page imagery may come from the editor's Supabase media library. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image} alt="" style={{ objectFit: "cover", objectPosition: imagePosition }} />
       </div>
       <div className="page-hero-shade" aria-hidden="true" />
       <div className="shell page-hero-content">

@@ -16,6 +16,7 @@ export type SiteContent = {
     ctaText: string;
     clients: string[];
     metrics: { value: string; label: string }[];
+    organisations: { name: string; image: string }[];
     heroSlides: {
       image: string;
       position: string;
@@ -54,5 +55,6 @@ export type Post = {
   body: string;
   category: string;
   published_at: string;
+  image_url?: string;
   featured?: boolean;
 };

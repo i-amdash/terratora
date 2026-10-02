@@ -71,7 +71,7 @@ export function ContactForm({ booking = false }: { booking?: boolean }) {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Something went wrong");
       setState("success");
-      setMessage(booking ? "Your request is in. We’ll confirm a time by email shortly." : "Message received. We’ll be in touch within two working days.");
+      setMessage(booking ? "Your request is in. We’ll confirm a time by email shortly." : "Message received. Thank you for contacting Terratora.");
       form.reset();
     } catch (error) {
       setState("error");
@@ -82,7 +82,7 @@ export function ContactForm({ booking = false }: { booking?: boolean }) {
   return (
     <form className="contact-form" onSubmit={submit}>
       <div className="field-row"><Field label="First name" name="first_name" /><Field label="Last name" name="last_name" /></div>
-      <div className="field-row"><Field label="Work email" name="email" type="email" /><Field label="Organisation" name="organisation" required={false} /></div>
+      <div className="field-row"><Field label="Email" name="email" type="email" /><Field label="Organisation" name="organisation" required={false} /></div>
       {booking ? (
         <>
           <div className="field-row"><Field label="Preferred date" name="preferred_date" type="date" /><Field label="Preferred time" name="preferred_time" type="time" /></div>
@@ -93,11 +93,10 @@ export function ContactForm({ booking = false }: { booking?: boolean }) {
         <label className="field"><span>How can we help? *</span><select name="interest" required defaultValue=""><option value="" disabled>Select a service</option>{serviceOptions.map((service) => <option value={service} key={service}>{service}</option>)}<option>Something else</option></select></label>
       )}
       <label className="field"><span>{booking ? "A little context" : "Your message"} *</span><textarea name="message" rows={5} required placeholder="What are you working through?" /></label>
-      <label className="consent-field"><input name="consent" type="checkbox" value="accepted" required /><span>I consent to Terratora using my details to respond to this {booking ? "booking request" : "enquiry"}. Read our <Link href="/privacy">privacy policy</Link>.</span></label>
       <div className="form-submit">
-        <p>{booking ? `Your time will be recorded in ${timezone.replaceAll("_", " ")}.` : "We aim to respond within two working days."}</p>
         <button className="button button-dark" disabled={state === "sending"}>{state === "sending" ? "Sending…" : booking ? "Request session" : "Send message"}<ArrowRight /></button>
       </div>
+      <label className="consent-field"><input name="consent" type="checkbox" value="accepted" required /><span>By submitting this form, you agree to let us process your personal information solely to respond to your inquiry/request. We rely on our legitimate interest to address customer inquiries. For more details on your rights under the NDPA and how we process your information, please view our full <Link href="/privacy">Privacy Policy</Link>.</span></label>
       {message && <p className={`form-status ${state}`}>{message}</p>}
     </form>
   );

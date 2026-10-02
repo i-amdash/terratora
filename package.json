@@ -11,7 +11,7 @@
     "seed": "node --env-file=.env supabase/seed.mjs"
   },
   "dependencies": {
-    "@fontsource-variable/newsreader": "^5.3.0",
+    "@fontsource-variable/public-sans": "^5.3.0",
     "@fontsource-variable/space-grotesk": "^5.3.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.4",

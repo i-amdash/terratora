@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import type { Post, SiteContent } from "@/lib/types";
 import { Logo } from "./logo";
-import { ArrowUpRight } from "./icons";
+import { SiteSearch } from "./site-search";
 
 const links = [
+  ["/", "Home"],
   ["/about", "About"],
   ["/services", "Services"],
   ["/journal", "Publications"],
   ["/careers", "Careers"],
-  ["/contact", "Contact"],
 ];
 
-export function Header() {
+export function Header({ content, posts }: { content: SiteContent; posts: Post[] }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -28,7 +29,7 @@ export function Header() {
 
   useEffect(() => setOpen(false), [pathname]);
 
-  const hasImageHero = pathname === "/" || ["/about", "/services", "/journal", "/careers", "/contact", "/book", "/privacy", "/cookies"].includes(pathname) || pathname.startsWith("/journal/");
+  const hasImageHero = pathname === "/" || ["/about", "/services", "/journal", "/careers", "/contact", "/contact/message", "/book", "/privacy", "/cookies"].includes(pathname) || pathname.startsWith("/journal/");
   const isOverHero = hasImageHero && !scrolled && !open;
 
   return (
@@ -37,16 +38,18 @@ export function Header() {
         <Logo light={isOverHero} />
         <nav className="desktop-nav" aria-label="Main navigation">
           {links.map(([href, label]) => <Link key={href} href={href} className={pathname === href ? "active" : ""}>{label}</Link>)}
+          <div className="contact-dropdown"><Link href="/contact" className={pathname.startsWith("/contact") || pathname === "/book" ? "active" : ""}>Contact us</Link><div><Link href="/contact/message">Send us a message</Link><Link href="/book">Book a session</Link></div></div>
         </nav>
-        <Link className="nav-cta" href="/book">Book a session <ArrowUpRight /></Link>
+        <SiteSearch content={content} posts={posts} />
         <button className="menu-button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label="Toggle navigation">
           <span /> <span />
         </button>
       </div>
       <div className="mobile-menu">
         <nav aria-label="Mobile navigation">
-          {links.map(([href, label], index) => <Link key={href} href={href}><span>0{index + 1}</span>{label}</Link>)}
-          <Link href="/book"><span>0{links.length + 1}</span>Book a session</Link>
+          {links.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}
+          <Link href="/contact">Contact us</Link>
+          <div className="mobile-contact-options"><Link href="/contact/message">Send us a message</Link><Link href="/book">Book a session</Link></div>
         </nav>
       </div>
     </header>

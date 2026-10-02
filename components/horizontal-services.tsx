@@ -1,81 +1,74 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { SiteContent } from "@/lib/types";
-import { ArrowUpRight } from "./icons";
+import { ArrowLeft, ArrowRight } from "./icons";
 
 type Services = SiteContent["services"];
-const symbols = ["◒", "✣", "⌁", "◎", "◇", "✦", "◐"];
 
 export function HorizontalServices({ services }: { services: Services }) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLSpanElement>(null);
+  const [canGoBack, setCanGoBack] = useState(false);
+  const [canGoForward, setCanGoForward] = useState(true);
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    const track = trackRef.current;
-    if (!section || !track) return;
-    const desktop = window.matchMedia("(min-width: 901px)");
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let frame = 0;
-
-    const update = () => {
-      frame = 0;
-      if (!desktop.matches || reduced.matches) {
-        section.style.removeProperty("height");
-        track.style.removeProperty("transform");
-        if (progressRef.current) progressRef.current.style.transform = "scaleX(0)";
-        return;
-      }
-      const travel = Math.max(0, track.scrollWidth - window.innerWidth + Math.max(48, window.innerWidth * .05));
-      section.style.height = `${travel + window.innerHeight * 1.35}px`;
-      const rect = section.getBoundingClientRect();
-      const scrollable = section.offsetHeight - window.innerHeight;
-      const progress = Math.max(0, Math.min(1, -rect.top / scrollable));
-      track.style.transform = `translate3d(${-travel * progress}px, 0, 0)`;
-      if (progressRef.current) progressRef.current.style.transform = `scaleX(${progress})`;
-    };
-    const requestUpdate = () => { if (!frame) frame = requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
-    desktop.addEventListener("change", requestUpdate);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
-      desktop.removeEventListener("change", requestUpdate);
-    };
+  const updatePosition = useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const maximum = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    const progress = maximum ? viewport.scrollLeft / maximum : 1;
+    setCanGoBack(viewport.scrollLeft > 4);
+    setCanGoForward(viewport.scrollLeft < maximum - 4);
+    if (progressRef.current) progressRef.current.style.transform = `scaleX(${progress})`;
   }, []);
 
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    updatePosition();
+    viewport.addEventListener("scroll", updatePosition, { passive: true });
+    window.addEventListener("resize", updatePosition);
+    return () => {
+      viewport.removeEventListener("scroll", updatePosition);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [updatePosition]);
+
+  const move = (direction: -1 | 1) => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    viewport.scrollBy({ left: viewport.clientWidth * 0.78 * direction, behavior: "smooth" });
+  };
+
   return (
-    <section className="horizontal-services" id="capabilities" ref={sectionRef} data-color-flow="aqua">
-      <div className="horizontal-stage">
-        <div className="shell horizontal-heading">
-          <div><p className="section-index">02 — Capabilities</p><h2>From intent<br /><em>to impact.</em></h2></div>
-          <p>{services.intro}</p>
+    <section className="horizontal-services" id="capabilities" data-color-flow="aqua">
+      <div className="shell horizontal-heading">
+        <div><p className="section-index">Capabilities</p><h2>From intent<br /><em>to impact.</em></h2></div>
+        <p>{services.intro}</p>
+      </div>
+      <div className="horizontal-viewport" ref={viewportRef} tabIndex={0} aria-label="Terratora services. Scroll horizontally to explore.">
+        <div className="horizontal-track">
+          {services.items.map((service, index) => (
+            <Link className={`horizontal-card horizontal-card-${index + 1}`} href="/services" key={service.title}>
+              <div className="horizontal-card-top"><span>Terratora</span><span>Capability</span></div>
+              <div className="horizontal-card-copy"><h3>{service.title}</h3><p>{service.summary}</p></div>
+              <span className="horizontal-card-action">View service <ArrowRight /></span>
+            </Link>
+          ))}
+          <article className="horizontal-end-card">
+            <p>Need a different combination?</p><h3>We shape the work around the question.</h3>
+            <Link href="/contact">Start a conversation <ArrowRight /></Link>
+          </article>
         </div>
-        <div className="horizontal-viewport">
-          <div className="horizontal-track" ref={trackRef}>
-            <div className="horizontal-spacer" aria-hidden="true" />
-            {services.items.map((service, index) => (
-              <article className={`horizontal-card horizontal-card-${index + 1}`} key={service.title}>
-                <div className="horizontal-card-top"><span>{service.number}</span><span>Terratora / Capability</span></div>
-                <div className="horizontal-symbol" aria-hidden="true">{symbols[index % symbols.length]}</div>
-                <div className="horizontal-card-copy"><h3>{service.title}</h3><p>{service.summary}</p></div>
-                <Link href="/services" aria-label={`Explore ${service.title}`}><ArrowUpRight /></Link>
-              </article>
-            ))}
-            <div className="horizontal-end-card">
-              <p>Need a different combination?</p><h3>We shape the work around the question.</h3>
-              <Link href="/contact">Start a conversation <ArrowUpRight /></Link>
-            </div>
-            <div className="horizontal-spacer end" aria-hidden="true" />
-          </div>
+      </div>
+      <div className="shell horizontal-progress">
+        <span className="horizontal-instruction">Scroll across to explore</span>
+        <div><span ref={progressRef} /></div>
+        <div className="horizontal-controls">
+          <button type="button" onClick={() => move(-1)} disabled={!canGoBack} aria-label="Previous services"><ArrowLeft /></button>
+          <button type="button" onClick={() => move(1)} disabled={!canGoForward} aria-label="Next services"><ArrowRight /></button>
         </div>
-        <div className="shell horizontal-progress"><span className="horizontal-instruction">Keep scrolling down <i>↓</i> We&apos;ll move sideways</span><div><span ref={progressRef} /></div><strong>{String(services.items.length).padStart(2, "0")}</strong></div>
       </div>
     </section>
   );

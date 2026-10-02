@@ -7,7 +7,7 @@ const palettes: Record<string, string> = {
   deep: "radial-gradient(circle at 14% 20%, rgba(24,154,180,.42), transparent 38%), radial-gradient(circle at 86% 74%, rgba(212,241,244,.26), transparent 42%)",
   aqua: "radial-gradient(circle at 82% 18%, rgba(24,154,180,.34), transparent 38%), radial-gradient(circle at 18% 78%, rgba(212,241,244,.5), transparent 46%)",
   grotto: "radial-gradient(circle at 22% 28%, rgba(212,241,244,.42), transparent 40%), radial-gradient(circle at 78% 72%, rgba(24,154,180,.46), transparent 43%)",
-  warm: "radial-gradient(circle at 80% 24%, rgba(233,196,106,.32), transparent 40%), radial-gradient(circle at 18% 78%, rgba(212,241,244,.42), transparent 45%)",
+  warm: "radial-gradient(circle at 80% 24%, rgba(24,154,180,.26), transparent 40%), radial-gradient(circle at 18% 78%, rgba(212,241,244,.42), transparent 45%)",
   clear: "radial-gradient(circle at 75% 18%, rgba(212,241,244,.3), transparent 42%), radial-gradient(circle at 15% 80%, rgba(24,154,180,.18), transparent 46%)",
 };
 

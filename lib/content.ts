@@ -19,7 +19,12 @@ export function mergeSiteContent(saved: Partial<SiteContent> = {}): SiteContent 
     ...defaultContent,
     ...saved,
     global: { ...defaultContent.global, ...saved.global },
-    home: { ...defaultContent.home, ...saved.home },
+    home: {
+      ...defaultContent.home,
+      ...saved.home,
+      organisations: saved.home?.organisations ?? defaultContent.home.organisations,
+      heroSlides: (saved.home?.heroSlides ?? defaultContent.home.heroSlides).slice(0, 3),
+    },
     about: { ...defaultContent.about, ...saved.about },
     services: {
       ...defaultContent.services,
@@ -45,7 +50,10 @@ export async function getPosts(): Promise<Post[]> {
   const supabase = createPublicClient();
   if (!supabase) return defaultPosts;
   const { data } = await supabase.from("posts").select("*").eq("published", true).order("published_at", { ascending: false });
-  return data?.length ? (data as Post[]) : defaultPosts;
+  return data?.length ? (data as Post[]).map((post) => ({
+    ...post,
+    image_url: post.image_url || defaultPosts.find((fallback) => fallback.slug === post.slug)?.image_url,
+  })) : defaultPosts;
 }
 
 export async function getPost(slug: string): Promise<Post | undefined> {

@@ -22,9 +22,16 @@ create table if not exists public.posts (
   featured boolean not null default false,
   published boolean not null default false,
   published_at date not null default current_date,
+  image_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.posts add column if not exists image_url text;
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('media', 'media', true, 8388608, array['image/jpeg','image/png','image/webp'])
+on conflict (id) do update set public = true, file_size_limit = 8388608, allowed_mime_types = excluded.allowed_mime_types;
 
 create table if not exists public.messages (
   id uuid primary key default gen_random_uuid(),

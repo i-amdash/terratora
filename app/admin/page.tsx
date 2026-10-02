@@ -5,6 +5,7 @@ import { defaultContent, defaultPosts } from "@/lib/default-content";
 import { mergeSiteContent } from "@/lib/content";
 import { requireAdmin } from "@/lib/supabase/auth";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/server";
+import type { Post } from "@/lib/types";
 
 export const metadata: Metadata = { title: "CMS" };
 
@@ -20,5 +21,6 @@ export default async function AdminPage() {
   ]) : [{data:null},{data:null},{data:null},{data:null}];
   const saved = (contentResult.data?.content ?? {}) as Partial<typeof defaultContent>;
   const content = mergeSiteContent(saved);
-  return <AdminDashboard email={user.email ?? "Admin"} content={content} posts={(postsResult.data ?? defaultPosts)} messages={(messagesResult.data ?? [])} bookings={(bookingsResult.data ?? [])} />;
+  const posts = ((postsResult.data ?? defaultPosts) as Post[]).map((post) => ({ ...post, image_url: post.image_url || defaultPosts.find((fallback) => fallback.slug === post.slug)?.image_url }));
+  return <AdminDashboard email={user.email ?? "Admin"} content={content} posts={posts} messages={(messagesResult.data ?? [])} bookings={(bookingsResult.data ?? [])} />;
 }

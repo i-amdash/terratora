@@ -3,14 +3,15 @@
 import Image from "next/image";
 import { useState } from "react";
 import type { SiteContent } from "@/lib/types";
+import { MediaUploader } from "./media-uploader";
 
 type Section = "business" | "homepage" | "about" | "services" | "contact";
 
 const sections: { id: Section; label: string; description: string }[] = [
   { id: "business", label: "Business details", description: "Email, service area and site-wide information" },
-  { id: "homepage", label: "Homepage", description: "Hero, carousel, sectors and headline figures" },
+  { id: "homepage", label: "Homepage", description: "Hero, carousel, sectors and organisation logos" },
   { id: "about", label: "About us", description: "Company story and guiding principles" },
-  { id: "services", label: "Services", description: "Service descriptions and deliverables" },
+  { id: "services", label: "Services", description: "Service names, summaries and full descriptions" },
   { id: "contact", label: "Contact page", description: "Contact page heading and introduction" },
 ];
 
@@ -43,9 +44,8 @@ export function AdminContentEditor({
           <p>Changes appear on the website after you select “Publish changes”.</p>
         </div>
         <nav>
-          {sections.map((item, index) => (
+          {sections.map((item) => (
             <button type="button" className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)} key={item.id}>
-              <span>0{index + 1}</span>
               <strong>{item.label}</strong>
               <small>{item.description}</small>
             </button>
@@ -103,7 +103,7 @@ function HomeEditor({ value, onChange }: EditorProps) {
       <TextField label="Closing call-to-action text" value={value.home.ctaText} onChange={(ctaText) => updateHome({ ctaText })} multiline />
     </div>
 
-    <CollectionHeader title="Carousel slides" description="Choose an approved image and edit the short message shown with it." onAdd={() => updateHome({ heroSlides: [...value.home.heroSlides, { image: imageOptions[0][0], position: "50% 50%", label: "New slide", caption: "Add a short, clear caption." }] })} />
+    <CollectionHeader title="Carousel slides" description="The homepage uses exactly three high-level brand messages. Choose an approved image and edit the short message shown with it." onAdd={value.home.heroSlides.length < 3 ? () => updateHome({ heroSlides: [...value.home.heroSlides, { image: imageOptions[0][0], position: "50% 50%", label: "New slide", caption: "Add a short, clear caption." }] }) : undefined} />
     <div className="cms-card-list">
       {value.home.heroSlides.map((slide, index) => <article className="cms-repeat-card hero-slide-editor" key={`${slide.image}-${index}`}>
         <div className="cms-image-preview"><Image src={slide.image} alt="" fill sizes="240px" style={{ objectFit: "cover", objectPosition: slide.position }} /></div>
@@ -122,8 +122,8 @@ function HomeEditor({ value, onChange }: EditorProps) {
     <CollectionHeader title="Client sectors" description="The sectors shown in the scrolling band beneath the hero." onAdd={() => updateHome({ clients: [...value.home.clients, "New sector"] })} />
     <div className="cms-panel cms-inline-list">{value.home.clients.map((client, index) => <div key={`${client}-${index}`}><input aria-label={`Client sector ${index + 1}`} value={client} onChange={(event) => updateHome({ clients: value.home.clients.map((item, itemIndex) => itemIndex === index ? event.target.value : item) })} /><RemoveButton onClick={() => updateHome({ clients: value.home.clients.filter((_, itemIndex) => itemIndex !== index) })} /></div>)}</div>
 
-    <CollectionHeader title="Headline figures" description="Short figures and labels used in the ‘In numbers’ section." onAdd={() => updateHome({ metrics: [...value.home.metrics, { value: "00", label: "New figure" }] })} />
-    <div className="cms-panel cms-metric-grid">{value.home.metrics.map((metric, index) => <article key={`${metric.label}-${index}`}><div className="cms-repeat-heading"><strong>Figure {index + 1}</strong><RemoveButton onClick={() => updateHome({ metrics: value.home.metrics.filter((_, itemIndex) => itemIndex !== index) })} /></div><TextField label="Value" value={metric.value} onChange={(metricValue) => updateHome({ metrics: value.home.metrics.map((item, itemIndex) => itemIndex === index ? { ...item, value: metricValue } : item) })} /><TextField label="Description" value={metric.label} onChange={(label) => updateHome({ metrics: value.home.metrics.map((item, itemIndex) => itemIndex === index ? { ...item, label } : item) })} /></article>)}</div>
+    <CollectionHeader title="Organisations we have supported" description="Add approved client logos here. This section stays completely hidden on the website until at least one organisation is added." onAdd={() => updateHome({ organisations: [...value.home.organisations, { name: "Organisation name", image: "" }] })} />
+    <div className="cms-card-list">{value.home.organisations.map((organisation, index) => <article className="cms-repeat-card" key={`${organisation.name}-${index}`}><div className="cms-repeat-content"><div className="cms-repeat-heading"><strong>{organisation.name || "New organisation"}</strong><RemoveButton onClick={() => updateHome({ organisations: value.home.organisations.filter((_, itemIndex) => itemIndex !== index) })} /></div><TextField label="Organisation name" value={organisation.name} onChange={(name) => updateHome({ organisations: value.home.organisations.map((item, itemIndex) => itemIndex === index ? { ...item, name } : item) })} /><MediaUploader label="Organisation logo" value={organisation.image} onChange={(image) => updateHome({ organisations: value.home.organisations.map((item, itemIndex) => itemIndex === index ? { ...item, image } : item) })} /></div></article>)}</div>
   </>;
 }
 
@@ -140,24 +140,21 @@ function AboutEditor({ value, onChange }: EditorProps) {
       <div className="cms-field-full"><TextField label="Mission" value={value.about.mission} onChange={(mission) => updateAbout({ mission })} multiline /></div>
     </div>
     <CollectionHeader title="Guiding principles" description="Add, remove or reorder the ideas that explain how Terratora works." onAdd={() => updateAbout({ principles: [...value.about.principles, { number: String(value.about.principles.length + 1).padStart(2, "0"), title: "New principle", text: "Explain this principle." }] })} />
-    <div className="cms-card-list">{value.about.principles.map((principle, index) => <article className="cms-repeat-card" key={`${principle.number}-${index}`}><div className="cms-repeat-content"><div className="cms-repeat-heading"><strong>Principle {index + 1}</strong><RemoveButton onClick={() => updateAbout({ principles: value.about.principles.filter((_, itemIndex) => itemIndex !== index) })} /></div><div className="cms-form-grid compact"><TextField label="Number" value={principle.number} onChange={(number) => updateAbout({ principles: value.about.principles.map((item, itemIndex) => itemIndex === index ? { ...item, number } : item) })} /><TextField label="Title" value={principle.title} onChange={(title) => updateAbout({ principles: value.about.principles.map((item, itemIndex) => itemIndex === index ? { ...item, title } : item) })} /></div><TextField label="Explanation" value={principle.text} onChange={(text) => updateAbout({ principles: value.about.principles.map((item, itemIndex) => itemIndex === index ? { ...item, text } : item) })} multiline /></div></article>)}</div>
+    <div className="cms-card-list">{value.about.principles.map((principle, index) => <article className="cms-repeat-card" key={`${principle.number}-${index}`}><div className="cms-repeat-content"><div className="cms-repeat-heading"><strong>{principle.title}</strong><RemoveButton onClick={() => updateAbout({ principles: value.about.principles.filter((_, itemIndex) => itemIndex !== index) })} /></div><TextField label="Title" value={principle.title} onChange={(title) => updateAbout({ principles: value.about.principles.map((item, itemIndex) => itemIndex === index ? { ...item, title } : item) })} /><TextField label="Explanation" value={principle.text} onChange={(text) => updateAbout({ principles: value.about.principles.map((item, itemIndex) => itemIndex === index ? { ...item, text } : item) })} multiline /></div></article>)}</div>
   </>;
 }
 
 function ServicesEditor({ value, onChange }: EditorProps) {
   const updateServices = (changes: Partial<SiteContent["services"]>) => onChange({ ...value, services: { ...value.services, ...changes } });
   return <>
-    <EditorHeading title="Services" description="Keep service descriptions clear and add deliverables as simple list items." />
+    <EditorHeading title="Services" description="Keep each service summary clear, then use the full description to answer the questions a client may have when deciding where to begin." />
     <div className="cms-panel cms-form-grid">
       <TextField label="Small page heading" value={value.services.eyebrow} onChange={(eyebrow) => updateServices({ eyebrow })} />
       <TextField label="Page title" value={value.services.title} onChange={(title) => updateServices({ title })} />
       <div className="cms-field-full"><TextField label="Introduction" value={value.services.intro} onChange={(intro) => updateServices({ intro })} multiline /></div>
     </div>
     <CollectionHeader title="Service list" description="Each service appears on the Services page and homepage service journey." onAdd={() => updateServices({ items: [...value.services.items, { number: String(value.services.items.length + 1).padStart(2, "0"), title: "New service", summary: "Describe the outcome of this service.", body: "Explain what this service covers and how Terratora helps.", deliverables: ["New deliverable"] }] })} />
-    <div className="cms-card-list">{value.services.items.map((service, index) => <article className="cms-repeat-card" key={`${service.number}-${index}`}><div className="cms-repeat-content"><div className="cms-repeat-heading"><strong>Service {index + 1}</strong><RemoveButton onClick={() => updateServices({ items: value.services.items.filter((_, itemIndex) => itemIndex !== index) })} /></div><div className="cms-form-grid compact"><TextField label="Number" value={service.number} onChange={(number) => updateServices({ items: value.services.items.map((item, itemIndex) => itemIndex === index ? { ...item, number } : item) })} /><TextField label="Service name" value={service.title} onChange={(title) => updateServices({ items: value.services.items.map((item, itemIndex) => itemIndex === index ? { ...item, title } : item) })} /></div><TextField label="Short summary" hint="Used on the homepage service cards." value={service.summary} onChange={(summary) => updateServices({ items: value.services.items.map((item, itemIndex) => itemIndex === index ? { ...item, summary } : item) })} multiline /><TextField label="Full service description" hint="Use a blank line to begin a new paragraph." value={service.body} onChange={(body) => updateServices({ items: value.services.items.map((item, itemIndex) => itemIndex === index ? { ...item, body } : item) })} multiline /><div className="cms-subcollection"><div className="cms-subcollection-heading"><strong>What this can include</strong><button type="button" onClick={() => updateServices({ items: value.services.items.map((item, itemIndex) => itemIndex === index ? { ...item, deliverables: [...item.deliverables, "New deliverable"] } : item) })}>+ Add item</button></div>{service.deliverables.map((deliverable, deliverableIndex) => <div className="cms-inline-row" key={`${deliverable}-${deliverableIndex}`}><input aria-label={`Deliverable ${deliverableIndex + 1}`} value={deliverable} onChange={(event) => updateServices({ items: value.services.items.map((item, itemIndex) => itemIndex === index ? { ...item, deliverables: item.deliverables.map((entry, entryIndex) => entryIndex === deliverableIndex ? event.target.value : entry) } : item) })} /><RemoveButton onClick={() => updateServices({ items: value.services.items.map((item, itemIndex) => itemIndex === index ? { ...item, deliverables: item.deliverables.filter((_, entryIndex) => entryIndex !== deliverableIndex) } : item) })} /></div>)}</div></div></article>)}</div>
-
-    <CollectionHeader title="Where should you start?" description="Match a visitor’s situation to the most relevant Terratora service." onAdd={() => updateServices({ startingPoints: [...value.services.startingPoints, { situation: "Describe the visitor’s situation", service: value.services.items[0]?.title ?? "Service" }] })} />
-    <div className="cms-panel cms-starting-points">{value.services.startingPoints.map((point, index) => <div className="cms-starting-row" key={`${point.situation}-${index}`}><TextField label={`Situation ${index + 1}`} value={point.situation} onChange={(situation) => updateServices({ startingPoints: value.services.startingPoints.map((item, itemIndex) => itemIndex === index ? { ...item, situation } : item) })} /><label className="cms-field"><span>Recommended service</span><select value={point.service} onChange={(event) => updateServices({ startingPoints: value.services.startingPoints.map((item, itemIndex) => itemIndex === index ? { ...item, service: event.target.value } : item) })}>{value.services.items.map((service) => <option value={service.title} key={service.title}>{service.title}</option>)}</select></label><RemoveButton onClick={() => updateServices({ startingPoints: value.services.startingPoints.filter((_, itemIndex) => itemIndex !== index) })} /></div>)}</div>
+    <div className="cms-card-list">{value.services.items.map((service, index) => <article className="cms-repeat-card" key={`${service.number}-${index}`}><div className="cms-repeat-content"><div className="cms-repeat-heading"><strong>{service.title}</strong><RemoveButton onClick={() => updateServices({ items: value.services.items.filter((_, itemIndex) => itemIndex !== index) })} /></div><TextField label="Service name" value={service.title} onChange={(title) => updateServices({ items: value.services.items.map((item, itemIndex) => itemIndex === index ? { ...item, title } : item) })} /><TextField label="Short summary" hint="Used on the homepage service cards." value={service.summary} onChange={(summary) => updateServices({ items: value.services.items.map((item, itemIndex) => itemIndex === index ? { ...item, summary } : item) })} multiline /><TextField label="Full service description" hint="Use a blank line to begin a new paragraph. Include any useful ‘where should I start?’ guidance naturally in this text." value={service.body} onChange={(body) => updateServices({ items: value.services.items.map((item, itemIndex) => itemIndex === index ? { ...item, body } : item) })} multiline /></div></article>)}</div>
   </>;
 }
 
@@ -173,8 +170,8 @@ function ContactEditor({ value, onChange }: EditorProps) {
   </>;
 }
 
-function CollectionHeader({ title, description, onAdd }: { title: string; description: string; onAdd: () => void }) {
-  return <div className="cms-collection-heading"><div><h3>{title}</h3><p>{description}</p></div><button type="button" onClick={onAdd}>+ Add item</button></div>;
+function CollectionHeader({ title, description, onAdd }: { title: string; description: string; onAdd?: () => void }) {
+  return <div className="cms-collection-heading"><div><h3>{title}</h3><p>{description}</p></div>{onAdd && <button type="button" onClick={onAdd}>+ Add item</button>}</div>;
 }
 
 function RemoveButton({ onClick }: { onClick: () => void }) {

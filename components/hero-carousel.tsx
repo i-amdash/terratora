@@ -91,7 +91,7 @@ export function HeroCarousel({ home }: { home: HeroContent }) {
         </div>
 
         <div className="hero-slide-meta" aria-live="polite" aria-atomic="true">
-          <p><span>{String(active + 1).padStart(2, "0")}</span>{current.label}</p>
+          <p>{current.label}</p>
           <strong>{current.caption}</strong>
         </div>
 
