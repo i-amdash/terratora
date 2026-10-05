@@ -9,6 +9,7 @@ export function AdminOverview({ posts, messages, bookings, onNavigate }: { posts
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const totalReads = posts.reduce((total, post) => total + (post.read_count ?? 0), 0);
   const totalShares = posts.reduce((total, post) => total + (post.share_count ?? 0), 0);
+  const totalLikes = posts.reduce((total, post) => total + (post.like_count ?? 0), 0);
   const bookingsThisMonth = bookings.filter((booking) => String(booking.created_at ?? booking.preferred_date ?? "").startsWith(thisMonth)).length;
   const newMessages = messages.filter((message) => !message.status || message.status === "new").length;
   const months = Array.from({ length: 6 }, (_, index) => {
@@ -29,6 +30,7 @@ export function AdminOverview({ posts, messages, bookings, onNavigate }: { posts
     { label: "Publications", value: posts.length, note: "Published articles", destination: "journal" as const },
     { label: "Publication reads", value: totalReads, note: "Across all articles", destination: "journal" as const },
     { label: "Publication shares", value: totalShares, note: "Across all articles", destination: "journal" as const },
+    { label: "Publication likes", value: totalLikes, note: "Across all articles", destination: "journal" as const },
   ];
 
   return <div className="admin-overview">
@@ -36,7 +38,7 @@ export function AdminOverview({ posts, messages, bookings, onNavigate }: { posts
     <section className="overview-stats" aria-label="Website statistics">{stats.map((stat) => <button type="button" onClick={() => onNavigate(stat.destination)} key={stat.label}><span>{stat.label}</span><strong>{stat.value.toLocaleString()}</strong><small>{stat.note} <b aria-hidden="true">→</b></small></button>)}</section>
     <div className="overview-grid">
       <section className="overview-panel booking-chart"><header><div><p className="eyebrow">Booking frequency</p><h3>Requests over six months</h3></div><button type="button" onClick={() => onNavigate("bookings")}>View bookings →</button></header><div className="bar-chart" aria-label="Bookings received in each of the last six months">{months.map((month) => <div className="bar-column" key={month.key}><div><span style={{ "--bar-height": `${Math.max(month.count ? 12 : 2, month.count / largestMonth * 100)}%` } as CSSProperties}><b>{month.count}</b></span></div><small>{month.label}</small></div>)}</div></section>
-      <section className="overview-panel top-publications"><header><div><p className="eyebrow">Publications</p><h3>Most read</h3></div><button type="button" onClick={() => onNavigate("journal")}>Manage →</button></header>{topPosts.length ? <ol>{topPosts.map((post, index) => <li key={post.slug}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{post.title}</strong><small>{(post.read_count ?? 0).toLocaleString()} reads · {(post.share_count ?? 0).toLocaleString()} shares</small></div></li>)}</ol> : <p className="overview-empty">Published articles will appear here.</p>}</section>
+      <section className="overview-panel top-publications"><header><div><p className="eyebrow">Publications</p><h3>Most read</h3></div><button type="button" onClick={() => onNavigate("journal")}>Manage →</button></header>{topPosts.length ? <ol>{topPosts.map((post, index) => <li key={post.slug}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{post.title}</strong><small>{(post.read_count ?? 0).toLocaleString()} reads · {(post.share_count ?? 0).toLocaleString()} shares · {(post.like_count ?? 0).toLocaleString()} likes</small></div></li>)}</ol> : <p className="overview-empty">Published articles will appear here.</p>}</section>
     </div>
     <section className="overview-panel recent-activity"><header><div><p className="eyebrow">Inbox activity</p><h3>Latest enquiries</h3></div></header>{recentActivity.length ? <div>{recentActivity.map((item, index) => <article key={`${item.type}-${item.date}-${index}`}><span className={`activity-type ${item.type.toLowerCase()}`}>{item.type}</span><div><strong>{item.title}</strong><small>{item.detail}</small></div><time>{formatDate(item.date)}</time></article>)}</div> : <p className="overview-empty">New booking requests and messages will appear here.</p>}</section>
   </div>;

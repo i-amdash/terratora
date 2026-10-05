@@ -49,6 +49,7 @@ export type SiteContent = {
 
 export type Post = {
   id?: string;
+  author_id?: string;
   slug: string;
   title: string;
   excerpt: string;
@@ -61,4 +62,25 @@ export type Post = {
   featured?: boolean;
   read_count?: number;
   share_count?: number;
+  like_count?: number;
+};
+
+export type Author = {
+  id: string;
+  name: string;
+  role?: string;
+  bio?: string;
+  avatar_url?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type PublicationComment = {
+  id: string;
+  parent_id?: string | null;
+  author_name: string;
+  body: string;
+  like_count: number;
+  liked?: boolean;
+  created_at: string;
 };

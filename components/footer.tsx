@@ -53,7 +53,7 @@ export function Footer({ content }: { content: SiteContent }) {
       <div className="shell footer-directory">
         <div><span>Services</span>{content.services.items.map((service) => <Link key={service.title} href={`/services#${service.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}>{service.title}</Link>)}</div>
         <div><span>Explore</span><Link href="/about">About us</Link><Link href="/journal">Publications</Link><Link href="/careers">Careers</Link><Link href="/contact">Contact</Link><Link href="/book">Book a session</Link></div>
-        <div><span>Follow</span><a href="https://www.linkedin.com/company/terratoraconsulting" target="_blank" rel="noreferrer">LinkedIn ↗</a><a href="https://x.com/terratora_ng" target="_blank" rel="noreferrer">X ↗</a><a href="https://www.instagram.com/terratora_ng" target="_blank" rel="noreferrer">Instagram ↗</a><p>{content.global.location}</p><a className="footer-small-email" href={`mailto:${content.global.email}`}>{content.global.email}</a></div>
+        <div><span>Follow</span><a href="https://www.linkedin.com/company/terratoraconsulting" target="_blank" rel="noreferrer">LinkedIn ↗</a><a href="https://x.com/terratora_ng" target="_blank" rel="noreferrer">X ↗</a><a href="https://www.instagram.com/terratora_ng" target="_blank" rel="noreferrer">Instagram ↗</a><p>{content.global.location}</p></div>
       </div>
       <div className="shell footer-bottom">
         <Logo light />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Post, SiteContent } from "@/lib/types";
+import type { Author, Post, SiteContent } from "@/lib/types";
 import { createBrowserSupabase } from "@/lib/supabase/browser";
 import { AdminContentEditor } from "./admin-content-editor";
 import { AdminOverview, type AdminRecord } from "./admin-overview";
@@ -10,7 +10,7 @@ import { AdminPublications } from "./admin-publications";
 type Tab = "overview" | "content" | "journal" | "messages" | "bookings";
 const tabLabels: Record<Tab, string> = { overview: "Dashboard", content: "Website", journal: "Publications", messages: "Messages", bookings: "Bookings" };
 
-export function AdminDashboard({ content, posts, messages, bookings, email }: { content: SiteContent; posts: Post[]; messages: AdminRecord[]; bookings: AdminRecord[]; email: string }) {
+export function AdminDashboard({ content, posts, authors, messages, bookings, email }: { content: SiteContent; posts: Post[]; authors: Author[]; messages: AdminRecord[]; bookings: AdminRecord[]; email: string }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [draft, setDraft] = useState<SiteContent>(content);
   const [notice, setNotice] = useState("");
@@ -31,7 +31,7 @@ export function AdminDashboard({ content, posts, messages, bookings, email }: { 
       <header><div><p className="eyebrow">Control room</p><h1>{tabLabels[tab]}</h1></div><p>{notice}</p></header>
       {tab === "overview" && <AdminOverview posts={posts} messages={messages} bookings={bookings} onNavigate={setTab} />}
       {tab === "content" && <AdminContentEditor value={draft} onChange={setDraft} onSave={saveContent} />}
-      {tab === "journal" && <AdminPublications posts={posts} onNotice={setNotice} />}
+      {tab === "journal" && <AdminPublications posts={posts} authors={authors} onNotice={setNotice} />}
       {tab === "messages" && <RecordList rows={messages} empty="No messages yet." fields={["first_name","last_name","email","organisation","interest","message","created_at"]} />}
       {tab === "bookings" && <RecordList rows={bookings} empty="No session requests yet." fields={["first_name","last_name","email","organisation","session_type","preferred_date","preferred_time","timezone","message","status"]} />}
     </section>
