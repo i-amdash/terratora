@@ -18,9 +18,9 @@
     "metrics": [],
     "organisations": [],
     "heroSlides": [
-      { "image": "/images/hero/global-markets.jpg", "position": "38% 64%", "label": "A changing business landscape", "caption": "Navigate ESG change with a clearer view of what comes next." },
-      { "image": "/images/hero/sustainable-business.jpg", "position": "50% 52%", "label": "Clarity for better decisions", "caption": "Turn evolving expectations into practical, business-relevant action." },
-      { "image": "/images/hero/reporting.jpg", "position": "50% 48%", "label": "Capability that lasts", "caption": "Build reliable information, stronger governance and lasting organisational capability." }
+      { "image": "/images/hero/global-markets.jpg", "position": "38% 64%", "eyebrow": "ESG · Sustainability · Reporting", "title": "Navigate ESG change.", "titleAccent": "Build resilience. Create lasting value.", "label": "A changing business landscape", "caption": "Navigate ESG change with a clearer view of what comes next." },
+      { "image": "/images/hero/sustainable-business.jpg", "position": "50% 52%", "eyebrow": "Strategy · Governance · Action", "title": "Turn ESG expectations into action.", "titleAccent": "Make confident, business-ready decisions.", "label": "Clarity for better decisions", "caption": "Turn evolving expectations into practical, business-relevant action." },
+      { "image": "/images/hero/reporting.jpg", "position": "50% 48%", "eyebrow": "Data · Controls · Reporting", "title": "Build reporting you can trust.", "titleAccent": "Strengthen capability. Report with confidence.", "label": "Capability that lasts", "caption": "Build reliable information, stronger governance and lasting organisational capability." }
     ]
   },
   "about": {

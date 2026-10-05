@@ -20,6 +20,9 @@ export type SiteContent = {
     heroSlides: {
       image: string;
       position: string;
+      eyebrow: string;
+      title: string;
+      titleAccent: string;
       label: string;
       caption: string;
     }[];

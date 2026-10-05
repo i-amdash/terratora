@@ -91,25 +91,25 @@ function BusinessEditor({ value, onChange }: EditorProps) {
 
 function HomeEditor({ value, onChange }: EditorProps) {
   const updateHome = (changes: Partial<SiteContent["home"]>) => onChange({ ...value, home: { ...value.home, ...changes } });
+  const updateHeroSlide = (index: number, changes: Partial<SiteContent["home"]["heroSlides"][number]>) => updateHome({ heroSlides: value.home.heroSlides.map((slide, slideIndex) => slideIndex === index ? { ...slide, ...changes } : slide) });
   return <>
     <EditorHeading title="Homepage" description="Edit the main message, carousel and the information visitors see first." />
     <div className="cms-panel cms-form-grid">
-      <TextField label="Small heading above the title" value={value.home.eyebrow} onChange={(eyebrow) => updateHome({ eyebrow })} />
-      <TextField label="Main headline" value={value.home.title} onChange={(title) => updateHome({ title })} />
-      <TextField label="Accent headline" hint="Shown in the italic display typeface." value={value.home.titleAccent} onChange={(titleAccent) => updateHome({ titleAccent })} />
-      <TextField label="Hero introduction" value={value.home.intro} onChange={(intro) => updateHome({ intro })} multiline />
       <div className="cms-field-full"><TextField label="Manifesto statement" value={value.home.manifesto} onChange={(manifesto) => updateHome({ manifesto })} multiline /></div>
       <div className="cms-field-full"><TextField label="Client-sector introduction" value={value.home.clientIntro} onChange={(clientIntro) => updateHome({ clientIntro })} multiline /></div>
       <TextField label="Closing call-to-action title" value={value.home.ctaTitle} onChange={(ctaTitle) => updateHome({ ctaTitle })} />
       <TextField label="Closing call-to-action text" value={value.home.ctaText} onChange={(ctaText) => updateHome({ ctaText })} multiline />
     </div>
 
-    <CollectionHeader title="Carousel slides" description="The homepage uses exactly three high-level brand messages. Choose an approved image and edit the short message shown with it." onAdd={value.home.heroSlides.length < 3 ? () => updateHome({ heroSlides: [...value.home.heroSlides, { image: imageOptions[0][0], position: "50% 50%", label: "New slide", caption: "Add a short, clear caption." }] }) : undefined} />
+    <CollectionHeader title="Carousel slides" description="Each image has its own animated eyebrow, headline and supporting message." onAdd={value.home.heroSlides.length < 3 ? () => updateHome({ heroSlides: [...value.home.heroSlides, { image: imageOptions[0][0], position: "50% 50%", eyebrow: "ESG · Sustainability", title: "Add the main headline.", titleAccent: "Add the accent headline.", label: "New slide", caption: "Add a short, clear caption." }] }) : undefined} />
     <div className="cms-card-list">
       {value.home.heroSlides.map((slide, index) => <article className="cms-repeat-card hero-slide-editor" key={`${slide.image}-${index}`}>
         <div className="cms-image-preview"><Image src={slide.image} alt="" fill sizes="240px" style={{ objectFit: "cover", objectPosition: slide.position }} /></div>
         <div className="cms-repeat-content">
           <div className="cms-repeat-heading"><strong>Slide {index + 1}</strong><RemoveButton onClick={() => updateHome({ heroSlides: value.home.heroSlides.filter((_, itemIndex) => itemIndex !== index) })} /></div>
+          <TextField label="Small heading above the title" value={slide.eyebrow} onChange={(eyebrow) => updateHeroSlide(index, { eyebrow })} />
+          <TextField label="Main headline" value={slide.title} onChange={(title) => updateHeroSlide(index, { title })} />
+          <TextField label="Accent headline" hint="Shown in the italic display typeface." value={slide.titleAccent} onChange={(titleAccent) => updateHeroSlide(index, { titleAccent })} />
           <label className="cms-field"><span>Image</span><select value={slide.image} onChange={(event) => updateHome({ heroSlides: value.home.heroSlides.map((item, itemIndex) => itemIndex === index ? { ...item, image: event.target.value } : item) })}>{imageOptions.map(([path, label]) => <option value={path} key={path}>{label}</option>)}</select></label>
           <div className="cms-form-grid compact">
             <TextField label="Slide label" value={slide.label} onChange={(label) => updateHome({ heroSlides: value.home.heroSlides.map((item, itemIndex) => itemIndex === index ? { ...item, label } : item) })} />

@@ -1,9 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { ArrowRight } from "./icons";
 import type { SiteContent } from "@/lib/types";
 
 const AUTOPLAY_MS = 7000;
@@ -14,20 +12,24 @@ export function HeroCarousel({ home }: { home: HeroContent }) {
   const slides = home.heroSlides.length ? home.heroSlides : [{
     image: "/images/hero/global-markets.jpg",
     position: "38% 64%",
+    eyebrow: home.eyebrow,
+    title: home.title,
+    titleAccent: home.titleAccent,
     label: "Nigeria · Africa · Global markets",
     caption: "Navigate ESG change with a clearer view of what comes next.",
   }];
-  const [active, setActive] = useState(0);
+  const [{ active, previous }, setSlideState] = useState<{ active: number; previous: number | null }>({ active: 0, previous: null });
   const [paused, setPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const touchStart = useRef<number | null>(null);
 
   const showSlide = useCallback((index: number) => {
-    setActive((index + slides.length) % slides.length);
+    const next = (index + slides.length) % slides.length;
+    setSlideState((state) => state.active === next ? state : { active: next, previous: state.active });
   }, [slides.length]);
 
   const nextSlide = useCallback(() => {
-    setActive((current) => (current + 1) % slides.length);
+    setSlideState((state) => ({ active: (state.active + 1) % slides.length, previous: state.active }));
   }, [slides.length]);
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export function HeroCarousel({ home }: { home: HeroContent }) {
     >
       <div className="hero-slides" aria-hidden="true">
         {slides.map((slide, index) => (
-          <div className={`hero-slide ${index === active ? "is-active" : ""}`} key={slide.image}>
+          <div className={`hero-slide ${index === active ? "is-active" : ""}`} key={`${slide.image}-${index}`}>
             <Image
               src={slide.image}
               alt=""
@@ -81,13 +83,19 @@ export function HeroCarousel({ home }: { home: HeroContent }) {
 
       <div className="shell hero-grid">
         <div className="hero-copy">
-          <p className="eyebrow hero-eyebrow"><span />{home.eyebrow}</p>
-          <h1><span>{home.title}</span><em>{home.titleAccent}</em></h1>
-        </div>
-
-        <div className="hero-aside">
-          <p>{home.intro}</p>
-          <Link href="/services" className="text-link">Explore our services <ArrowRight /></Link>
+          {slides.map((slide, index) => (
+            <article
+              className={`hero-message ${index === active ? "is-active" : ""} ${index === previous ? "is-exiting" : ""}`}
+              aria-hidden={index !== active}
+              key={`${slide.image}-message-${index}`}
+            >
+              <p className="eyebrow hero-eyebrow"><span className="hero-eyebrow-words"><AnimatedWords text={slide.eyebrow || home.eyebrow} start={0} /></span></p>
+              <h1>
+                <span className="hero-title-row"><AnimatedWords text={slide.title || home.title} start={70} /></span>
+                <em className="hero-title-row"><AnimatedWords text={slide.titleAccent || home.titleAccent} start={160} /></em>
+              </h1>
+            </article>
+          ))}
         </div>
 
         <div className="hero-slide-meta" aria-live="polite" aria-atomic="true">
@@ -100,7 +108,7 @@ export function HeroCarousel({ home }: { home: HeroContent }) {
             {slides.map((slide, index) => (
               <button
                 className={index === active ? "is-active" : ""}
-                key={slide.image}
+                key={`${slide.image}-${index}`}
                 type="button"
                 onClick={() => showSlide(index)}
                 aria-label={`Show slide ${index + 1}: ${slide.label}`}
@@ -128,4 +136,8 @@ export function HeroCarousel({ home }: { home: HeroContent }) {
       </div>
     </section>
   );
+}
+
+function AnimatedWords({ text, start }: { text: string; start: number }) {
+  return <>{text.trim().split(/\s+/).map((word, index) => <span className="hero-word-mask" key={`${word}-${index}`}><span className="hero-word" style={{ "--word-delay": `${start + index * 42}ms` } as CSSProperties}>{word}</span></span>)}</>;
 }

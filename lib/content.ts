@@ -5,6 +5,7 @@ import type { Post, SiteContent } from "./types";
 
 export function mergeSiteContent(saved: Partial<SiteContent> = {}): SiteContent {
   const savedServices = saved.services;
+  const savedHome = saved.home;
   const serviceItems = savedServices?.items?.map((item, index) => {
     const fallback = defaultContent.services.items.find((entry) => entry.number === item.number) ?? defaultContent.services.items[index];
     return {
@@ -14,6 +15,17 @@ export function mergeSiteContent(saved: Partial<SiteContent> = {}): SiteContent 
       deliverables: item.deliverables ?? fallback?.deliverables ?? [],
     };
   }) ?? defaultContent.services.items;
+  const heroSlides = (savedHome?.heroSlides ?? defaultContent.home.heroSlides).slice(0, 3).map((slide, index) => {
+    const fallback = defaultContent.home.heroSlides[index] ?? defaultContent.home.heroSlides[0];
+    const legacyHeadline = index === 0 ? savedHome : undefined;
+    return {
+      ...fallback,
+      ...slide,
+      eyebrow: slide.eyebrow || legacyHeadline?.eyebrow || fallback.eyebrow,
+      title: slide.title || legacyHeadline?.title || fallback.title,
+      titleAccent: slide.titleAccent || legacyHeadline?.titleAccent || fallback.titleAccent,
+    };
+  });
 
   return {
     ...defaultContent,
@@ -21,9 +33,9 @@ export function mergeSiteContent(saved: Partial<SiteContent> = {}): SiteContent 
     global: { ...defaultContent.global, ...saved.global },
     home: {
       ...defaultContent.home,
-      ...saved.home,
-      organisations: saved.home?.organisations ?? defaultContent.home.organisations,
-      heroSlides: (saved.home?.heroSlides ?? defaultContent.home.heroSlides).slice(0, 3),
+      ...savedHome,
+      organisations: savedHome?.organisations ?? defaultContent.home.organisations,
+      heroSlides,
     },
     about: { ...defaultContent.about, ...saved.about },
     services: {
