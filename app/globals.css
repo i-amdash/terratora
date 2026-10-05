@@ -773,7 +773,7 @@ button { color:inherit; }
   .manifesto-emphasis em:not(:last-child):after { padding-left:15px; }
   .parallax-manifesto { min-height:620px; }
   .parallax-word { font-size:155px; }
-  .circle-link { bottom:-90px; }
+  .circle-link { position:static; justify-self:start; margin-top:18px; }
   .services-preview,.journal-preview,.story-section,.home-cta { padding:90px 0; }
   .client-band-heading { grid-template-columns:1fr; gap:14px; }
   .section-heading h2 { font-size:48px; }
