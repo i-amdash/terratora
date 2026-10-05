@@ -759,7 +759,7 @@ button { color:inherit; }
 @media(max-width:600px) {
   .hero-copy h1 { font-size:clamp(46px,13vw,56px); }
   .hero-copy h1 em { font-size:.92em; }
-  .home-hero { min-height:800px; }
+  .home-hero { min-height:100svh; }
   .hero-grid { gap:24px; padding-top:130px; padding-bottom:30px; }
   .hero-copy h1 { font-size:clamp(49px,15vw,62px); line-height:.87; }
   .hero-slide-meta { display:block; min-height:62px; margin-top:8px; }
