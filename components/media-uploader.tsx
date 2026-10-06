@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useId, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 
 export function MediaUploader({
   value,
@@ -15,7 +15,7 @@ export function MediaUploader({
   publication?: boolean;
   avatar?: boolean;
 }) {
-  const inputId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState("");
   const [uploading, setUploading] = useState(false);
 
@@ -88,8 +88,8 @@ export function MediaUploader({
         {value && <button type="button" onClick={() => onChange("")}>Remove image</button>}
       </div>
       {value && <div className="media-preview">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={value} alt="Current upload preview" /></div>}
-      <label className={`media-upload-button ${uploading ? "is-uploading" : ""}`} htmlFor={inputId} aria-disabled={uploading}><span>{uploading ? "Uploading…" : value ? "Replace image" : "Choose image"}</span></label>
-      <input className="media-upload-input" id={inputId} type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading} onChange={chooseFile} />
+      <button className="media-upload-button" type="button" disabled={uploading} onClick={() => inputRef.current?.click()}>{uploading ? "Uploading…" : value ? "Replace image" : "Choose image"}</button>
+      <input ref={inputRef} className="media-upload-input" type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading} onChange={chooseFile} tabIndex={-1} />
       {status && <p className="media-upload-status" role="status">{status}</p>}
     </div>
   );
