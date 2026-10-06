@@ -26,7 +26,7 @@ export function AdminDashboard({ content, posts, authors, messages, bookings, em
   async function signOut() { await createBrowserSupabase()?.auth.signOut(); window.location.reload(); }
 
   return <div className="admin-shell">
-    <aside className="admin-sidebar"><div><p className="admin-brand">Terratora<span>CMS</span></p><p className="admin-user">Signed in as<br />{email}</p></div><nav>{(["overview","content","journal","messages","bookings"] as Tab[]).map((item, index) => <button className={tab === item ? "active" : ""} onClick={() => setTab(item)} key={item}><span>{String(index + 1).padStart(2, "0")}</span>{tabLabels[item]}</button>)}</nav><div><a href="/" target="_blank">View live site ↗</a><button onClick={signOut}>Sign out</button></div></aside>
+    <aside className="admin-sidebar"><div><p className="admin-brand">Terratora<span>CMS</span></p><p className="admin-user">Signed in as<br />{email}</p></div><nav>{(["overview","content","journal","messages","bookings"] as Tab[]).map((item) => <button className={tab === item ? "active" : ""} onClick={() => setTab(item)} key={item}>{tabLabels[item]}</button>)}</nav><div><a href="/" target="_blank">View live site ↗</a><button onClick={signOut}>Sign out</button></div></aside>
     <section className="admin-workspace">
       <header><div><p className="eyebrow">Control room</p><h1>{tabLabels[tab]}</h1></div><p>{notice}</p></header>
       {tab === "overview" && <AdminOverview posts={posts} messages={messages} bookings={bookings} onNavigate={setTab} />}

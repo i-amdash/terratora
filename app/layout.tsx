@@ -6,7 +6,7 @@ import { PageTransition } from "@/components/page-transition";
 import { ColorFlow } from "@/components/color-flow";
 import { CookieConsent } from "@/components/cookie-consent";
 import { getPosts, getSiteContent } from "@/lib/content";
-import "@fontsource-variable/space-grotesk";
+import "@fontsource-variable/figtree";
 import "@fontsource-variable/public-sans";
 import "./globals.css";
 

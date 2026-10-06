@@ -15,7 +15,7 @@ export function HeroCarousel({ home }: { home: HeroContent }) {
     eyebrow: home.eyebrow,
     title: home.title,
     titleAccent: home.titleAccent,
-    label: "Nigeria · Africa · Global markets",
+    label: "",
     caption: "Navigate ESG change with a clearer view of what comes next.",
   }];
   const [{ active, previous }, setSlideState] = useState<{ active: number; previous: number | null }>({ active: 0, previous: null });

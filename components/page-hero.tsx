@@ -5,7 +5,6 @@ type Crumb = { label: string; href?: string };
 export function PageHero({
   eyebrow,
   title,
-  lede,
   image,
   imagePosition = "center",
   crumbs,
@@ -40,7 +39,6 @@ export function PageHero({
         <div className="page-hero-copy">
           <p className="eyebrow">{eyebrow}</p>
           <h1>{title}</h1>
-          {lede && <p className="lede">{lede}</p>}
         </div>
       </div>
     </section>

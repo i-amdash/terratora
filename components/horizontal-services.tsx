@@ -44,7 +44,7 @@ export function HorizontalServices({ services }: { services: Services }) {
   return (
     <section className="horizontal-services" id="capabilities" data-color-flow="aqua">
       <div className="shell horizontal-heading">
-        <div><p className="section-index">Capabilities</p><h2>From intent<br /><em>to impact.</em></h2></div>
+        <div><p className="section-index">Capabilities</p><h2 className="section-display-title">From intent<br /><em>to impact.</em></h2></div>
         <p>{services.intro}</p>
       </div>
       <div className="horizontal-viewport" ref={viewportRef} tabIndex={0} aria-label="Terratora services. Scroll horizontally to explore.">

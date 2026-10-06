@@ -7,9 +7,10 @@ import { ArrowLeft, ArrowRight } from "./icons";
 type Organisation = SiteContent["home"]["organisations"][number];
 
 export function OrganisationCarousel({ organisations }: { organisations: Organisation[] }) {
+  const visibleOrganisations = organisations.filter((organisation) => organisation.image?.trim());
   const viewportRef = useRef<HTMLDivElement>(null);
   const [canGoBack, setCanGoBack] = useState(false);
-  const [canGoForward, setCanGoForward] = useState(organisations.length > 1);
+  const [canGoForward, setCanGoForward] = useState(visibleOrganisations.length > 1);
 
   const updatePosition = useCallback(() => {
     const viewport = viewportRef.current;
@@ -37,10 +38,12 @@ export function OrganisationCarousel({ organisations }: { organisations: Organis
     viewport.scrollBy({ left: viewport.clientWidth * 0.75 * direction, behavior: "smooth" });
   };
 
+  if (!visibleOrganisations.length) return null;
+
   return (
     <section className="organisation-section" data-color-flow="clear">
       <div className="shell organisation-heading">
-        <div><p className="section-index">Experience</p><h2>Organisations we<br /><em>have supported.</em></h2></div>
+        <div><p className="section-index">Experience</p><h2 className="section-display-title">Organisations we<br /><em>have supported.</em></h2></div>
         <div className="organisation-controls">
           <button type="button" onClick={() => move(-1)} disabled={!canGoBack} aria-label="Previous organisations"><ArrowLeft /></button>
           <button type="button" onClick={() => move(1)} disabled={!canGoForward} aria-label="Next organisations"><ArrowRight /></button>
@@ -48,10 +51,10 @@ export function OrganisationCarousel({ organisations }: { organisations: Organis
       </div>
       <div className="organisation-viewport" ref={viewportRef} tabIndex={0} aria-label="Organisations Terratora has supported">
         <div className="organisation-track">
-          {organisations.map((organisation) => (
+          {visibleOrganisations.map((organisation) => (
             <article className="organisation-logo" key={`${organisation.name}-${organisation.image}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={organisation.image} alt={`${organisation.name} logo`} />
+              <img src={organisation.image.trim()} alt={`${organisation.name} logo`} />
               <p>{organisation.name}</p>
             </article>
           ))}
