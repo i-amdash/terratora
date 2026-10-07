@@ -691,7 +691,7 @@ button { color:inherit; }
   .mobile-menu { display:block; position:fixed; inset:0; background:var(--baby); transform:translateY(-105%); visibility:hidden; pointer-events:none; overflow:hidden; transition:transform .6s cubic-bezier(.7,0,.2,1),visibility 0s linear .6s; padding:130px var(--pad) 40px; }
   .menu-is-open .mobile-menu { transform:none; visibility:visible; pointer-events:auto; transition-delay:0s; }
   .mobile-menu nav { display:flex; flex-direction:column; }
-  .mobile-menu a { font-size:clamp(36px,10.8vw,63px); letter-spacing:-.05em; border-bottom:1px solid var(--line); padding:8px 0; }
+  .mobile-menu a { font-size:clamp(27px,7.5vw,42px); letter-spacing:-.045em; border-bottom:1px solid var(--line); padding:8px 0; }
   .mobile-menu a span { font-size:10px; letter-spacing:.1em; margin-right:20px; }
   .hero-grid { grid-template-columns:1fr; grid-template-rows:auto; align-content:end; gap:30px; padding:16vh var(--pad) 42px; }
   .hero-copy h1 em { padding-left:0; white-space:normal; }
