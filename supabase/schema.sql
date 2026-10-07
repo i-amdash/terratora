@@ -3,8 +3,21 @@ create extension if not exists "pgcrypto";
 
 create table if not exists public.admin_users (
   user_id uuid primary key references auth.users(id) on delete cascade,
+  full_name text,
+  role text not null default 'editor' check (role in ('owner', 'admin', 'editor', 'viewer')),
+  permissions text[] not null default '{}',
+  is_active boolean not null default true,
+  updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
+
+alter table public.admin_users add column if not exists full_name text;
+alter table public.admin_users add column if not exists role text not null default 'editor';
+alter table public.admin_users add column if not exists permissions text[] not null default '{}';
+alter table public.admin_users add column if not exists is_active boolean not null default true;
+alter table public.admin_users add column if not exists updated_at timestamptz not null default now();
+alter table public.admin_users drop constraint if exists admin_users_role_check;
+alter table public.admin_users add constraint admin_users_role_check check (role in ('owner', 'admin', 'editor', 'viewer'));
 
 create table if not exists public.site_content (
   id text primary key,
@@ -216,4 +229,6 @@ drop policy if exists "Users can verify their own admin status" on public.admin_
 create policy "Users can verify their own admin status" on public.admin_users for select using (auth.uid() = user_id);
 
 -- After creating an Auth user, promote it with:
--- insert into public.admin_users (user_id) select id from auth.users where email = 'you@example.com';
+-- insert into public.admin_users (user_id, full_name, role, permissions)
+-- select id, 'Terratora Owner', 'owner', array['manage_content', 'manage_publications', 'view_messages', 'view_bookings', 'manage_users']
+-- from auth.users where email = 'you@example.com';

@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/supabase/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 
 export async function PUT(request: Request) {
-  if (!await requireAdmin()) return NextResponse.json({ error:"Unauthorised" },{status:401});
+  if (!await requireAdmin("manage_content")) return NextResponse.json({ error:"Unauthorised" },{status:401});
   const content = await request.json();
   if (!content?.global || !content?.home || !content?.about || !content?.services || !content?.contact) return NextResponse.json({error:"The content structure is incomplete."},{status:400});
   const client = createAdminClient();

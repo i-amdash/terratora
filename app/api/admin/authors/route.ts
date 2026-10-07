@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/supabase/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
-  if (!await requireAdmin()) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  if (!await requireAdmin("manage_publications")) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   const input = await request.json().catch(() => null);
   const name = clean(input?.name, 120);
   if (!name) return NextResponse.json({ error: "Enter the author’s name." }, { status: 400 });
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  if (!await requireAdmin()) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  if (!await requireAdmin("manage_publications")) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   const input = await request.json().catch(() => null);
   const id = clean(input?.id, 80);
   const name = clean(input?.name, 120);

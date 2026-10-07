@@ -1,13 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/supabase/auth";
+import { requireAnyAdminPermission } from "@/lib/supabase/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export async function POST(request: Request) {
   try {
-    if (!await requireAdmin()) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+    if (!await requireAnyAdminPermission(["manage_content", "manage_publications"])) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
     const client = createAdminClient();
     if (!client) return NextResponse.json({ error: "Supabase is not configured." }, { status: 503 });
 

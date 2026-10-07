@@ -61,7 +61,14 @@ async function seed() {
       admin = created.user;
       console.log("✓ Admin Auth account created");
     }
-    const { error: adminError } = await supabase.from("admin_users").upsert({ user_id: admin.id });
+    const { error: adminError } = await supabase.from("admin_users").upsert({
+      user_id: admin.id,
+      full_name: admin.user_metadata?.full_name ?? "Terratora Owner",
+      role: "owner",
+      permissions: ["manage_content", "manage_publications", "view_messages", "view_bookings", "manage_users"],
+      is_active: true,
+      updated_at: new Date().toISOString(),
+    });
     if (adminError) throw new Error(`admin_users: ${adminError.message}`);
     console.log("✓ Admin user promoted");
   } else {

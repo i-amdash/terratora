@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/supabase/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
-  if (!await requireAdmin()) return NextResponse.json({error:"Unauthorised"},{status:401});
+  if (!await requireAdmin("manage_publications")) return NextResponse.json({error:"Unauthorised"},{status:401});
   const input = await request.json();
   const required = ["title","slug","excerpt","body","category","published_at","image_url","author_id"];
   if (required.some((field) => !input[field])) return NextResponse.json({error:"Complete every article field."},{status:400});
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  if (!await requireAdmin()) return NextResponse.json({error:"Unauthorised"},{status:401});
+  if (!await requireAdmin("manage_publications")) return NextResponse.json({error:"Unauthorised"},{status:401});
   const input = await request.json();
   const required = ["title","slug","excerpt","body","category","published_at","image_url","author_id","original_slug"];
   if (required.some((field) => !input[field])) return NextResponse.json({error:"Complete every article field."},{status:400});
@@ -36,7 +36,7 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!await requireAdmin()) return NextResponse.json({error:"Unauthorised"},{status:401});
+  if (!await requireAdmin("manage_publications")) return NextResponse.json({error:"Unauthorised"},{status:401});
   const slug = new URL(request.url).searchParams.get("slug");
   if (!slug) return NextResponse.json({error:"Missing article slug."},{status:400});
   const client = createAdminClient();

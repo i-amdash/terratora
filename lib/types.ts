@@ -78,6 +78,17 @@ export type Author = {
   updated_at?: string;
 };
 
+export type AdminUser = {
+  id: string;
+  email: string;
+  full_name: string;
+  role: import("./admin-permissions").AdminRole;
+  permissions: import("./admin-permissions").AdminPermission[];
+  is_active: boolean;
+  created_at?: string;
+  last_sign_in_at?: string;
+};
+
 export type PublicationComment = {
   id: string;
   parent_id?: string | null;

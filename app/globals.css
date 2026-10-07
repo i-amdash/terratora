@@ -591,6 +591,38 @@ button { color:inherit; }
 .author-library button strong { font-size:12px; }
 .author-library button small { margin-top:4px; font-size:9px; opacity:.55; }
 .author-library button>b { font-size:9px; text-transform:uppercase; opacity:.55; }
+.user-manager { min-width:0; }
+.user-table td:first-child { min-width:220px; }
+.user-table td:nth-child(3) { min-width:240px; max-width:360px; }
+.user-table .text-button:disabled { cursor:not-allowed; opacity:.25; }
+.user-role,.user-status { display:inline-flex; align-items:center; width:max-content; border-radius:100px; padding:6px 10px; font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:.09em; }
+.user-role { background:var(--baby); }
+.user-role.role-owner { background:var(--ink); color:white; }
+.user-role.role-admin { background:var(--grotto); color:white; }
+.user-status { gap:6px; background:#e7f5eb; color:#2f7042; }
+.user-status:before { content:""; width:6px; height:6px; border-radius:50%; background:currentColor; }
+.user-status.inactive { background:#f4e9e6; color:#9a463a; }
+.user-drawer { width:min(700px,50vw); }
+.user-details-form { padding:24px; background:white; }
+.user-details-form .field:last-child { margin-bottom:0; }
+.user-details-form .field>small { display:block; margin:-4px 0 8px; font-size:9px; line-height:1.5; opacity:.58; }
+.user-active-toggle { display:flex; align-items:flex-start; gap:12px; margin-top:10px; padding-top:20px; border-top:1px solid var(--line); cursor:pointer; }
+.user-active-toggle input { width:17px; height:17px; flex:none; margin:1px 0 0; accent-color:var(--ink); }
+.user-active-toggle strong,.user-active-toggle small { display:block; }
+.user-active-toggle strong { font-size:11px; }
+.user-active-toggle small { margin-top:4px; font-size:9px; line-height:1.45; opacity:.58; }
+.permission-editor { margin-top:24px; padding:24px; background:white; }
+.permission-editor>header { display:flex; justify-content:space-between; align-items:end; gap:25px; margin-bottom:18px; }
+.permission-editor>header .eyebrow { margin:0 0 6px; font-size:8px; opacity:.55; }
+.permission-editor h3 { margin:0; font-size:19px; letter-spacing:-.035em; }
+.permission-editor>header>small { max-width:220px; font-size:9px; line-height:1.45; opacity:.58; text-align:right; }
+.permission-editor>div { border-top:1px solid var(--line); }
+.permission-editor>div>label { display:grid; grid-template-columns:18px 1fr; gap:13px; align-items:start; padding:15px 0; border-bottom:1px solid var(--line); cursor:pointer; }
+.permission-editor input { width:16px; height:16px; margin:1px 0 0; accent-color:var(--ink); }
+.permission-editor strong,.permission-editor label small { display:block; }
+.permission-editor strong { font-size:11px; }
+.permission-editor label small { margin-top:4px; font-size:9px; line-height:1.5; opacity:.58; }
+.user-editor-note { margin:20px 0 0; padding:13px 15px; background:#fff7db; color:#735514; font-size:9px; line-height:1.55; }
 .records { display:grid; gap:15px; }
 .record { display:grid; grid-template-columns:repeat(4,1fr); gap:25px; box-shadow:0 6px 25px rgba(5,68,94,.04); }
 .record>div:last-child { grid-column:span 2; }
