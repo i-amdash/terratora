@@ -8,7 +8,7 @@ import { mergeSiteContent } from "@/lib/content";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/server";
 import type { AdminUser, Author, Post, SiteAnalyticsSummary } from "@/lib/types";
 
-export const metadata: Metadata = { title: "CMS" };
+export const metadata: Metadata = { title: "CMS", robots: { index: false, follow: false, noarchive: true } };
 
 export default async function AdminPage() {
   const session = await getAdminSession();

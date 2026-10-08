@@ -9,13 +9,35 @@ import { CookieConsent } from "@/components/cookie-consent";
 import { SiteAnalytics } from "@/components/site-analytics";
 import { NavigationLoading } from "@/components/navigation-loading";
 import { getPosts, getSiteContent } from "@/lib/content";
+import { siteUrl } from "@/lib/site-url";
 import "@fontsource-variable/figtree";
 import "@fontsource-variable/public-sans";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: { default: "Terratora — ESG & Sustainability Advisory", template: "%s — Terratora" },
   description: "Terratora helps organisations translate sustainability requirements into practical action, reliable information and stronger business capability.",
+  applicationName: "Terratora",
+  authors: [{ name: "Terratora" }],
+  creator: "Terratora",
+  publisher: "Terratora",
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    siteName: "Terratora",
+    title: "Terratora — ESG & Sustainability Advisory",
+    description: "Terratora helps organisations translate sustainability requirements into practical action, reliable information and stronger business capability.",
+    url: "/",
+    images: [{ url: "/images/hero/reporting.jpg", alt: "Terratora ESG and sustainability advisory" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Terratora — ESG & Sustainability Advisory",
+    description: "Practical ESG, sustainability and reporting insight for organisations in Nigeria, Africa and global markets.",
+    images: ["/images/hero/reporting.jpg"],
+  },
+  verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };

@@ -33,4 +33,4 @@ Create a Resend API key, verify your sending domain, then set `RESEND_API_KEY`, 
 
 ## Deployment
 
-Deploy to Vercel, add every value from `.env.example` in the project settings, and set `NEXT_PUBLIC_SITE_URL` to the production domain.
+Deploy to Vercel, add every value from `.env.example` in the project settings, and set `SITE_URL` to the production domain. It is read only on the server and does not need the `NEXT_PUBLIC_` prefix.

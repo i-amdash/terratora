@@ -4,9 +4,22 @@ import { ArrowRight } from "@/components/icons";
 import { PageHero } from "@/components/page-hero";
 import { getPosts } from "@/lib/content";
 
-export const metadata: Metadata = { title: "Publications" };
-
 const postsPerPage = 8;
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ page?: string }> }): Promise<Metadata> {
+  const requestedPage = Number.parseInt((await searchParams).page ?? "1", 10);
+  const page = Number.isFinite(requestedPage) && requestedPage > 1 ? requestedPage : 1;
+  const title = page > 1 ? `Publications — Page ${page}` : "Publications";
+  const description = "Practical ESG, sustainability reporting and long-term value insight for organisations in Nigeria, Africa and global markets.";
+  const canonical = page > 1 ? `/journal?page=${page}` : "/journal";
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: { type: "website", title, description, url: canonical, images: ["/images/hero/reporting.jpg"] },
+    twitter: { card: "summary_large_image", title, description, images: ["/images/hero/reporting.jpg"] },
+  };
+}
 
 export default async function JournalPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   const posts = await getPosts();

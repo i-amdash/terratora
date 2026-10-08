@@ -66,6 +66,7 @@ export type Post = {
   read_count?: number;
   share_count?: number;
   like_count?: number;
+  updated_at?: string;
 };
 
 export type Author = {

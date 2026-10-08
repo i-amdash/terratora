@@ -16,6 +16,7 @@ export async function POST(request: Request) {
   const { error } = await client.from("posts").insert({ title:String(input.title).slice(0,200), slug, excerpt:String(input.excerpt).slice(0,500), body:String(input.body).slice(0,30000), category:String(input.category).slice(0,80), image_url:String(input.image_url).slice(0,1000), author_id:author.id, author_name:author.name, author_avatar_url:author.avatar_url, published_at:input.published_at, featured:Boolean(input.featured), published:true });
   if (error) return NextResponse.json({error:error.message},{status:500});
   revalidatePath("/journal","layout");
+  revalidatePath("/sitemap.xml");
   return NextResponse.json({ok:true});
 }
 
@@ -32,6 +33,7 @@ export async function PUT(request: Request) {
   const { error } = await client.from("posts").update({ title:String(input.title).slice(0,200), slug, excerpt:String(input.excerpt).slice(0,500), body:String(input.body).slice(0,30000), category:String(input.category).slice(0,80), image_url:String(input.image_url).slice(0,1000), author_id:author.id, author_name:author.name, author_avatar_url:author.avatar_url, published_at:input.published_at, featured:Boolean(input.featured), updated_at:new Date().toISOString() }).eq("slug",String(input.original_slug));
   if (error) return NextResponse.json({error:error.message},{status:500});
   revalidatePath("/journal","layout");
+  revalidatePath("/sitemap.xml");
   return NextResponse.json({ok:true});
 }
 
@@ -44,5 +46,6 @@ export async function DELETE(request: Request) {
   const { error } = await client.from("posts").delete().eq("slug",slug);
   if (error) return NextResponse.json({error:error.message},{status:500});
   revalidatePath("/journal","layout");
+  revalidatePath("/sitemap.xml");
   return NextResponse.json({ok:true});
 }
