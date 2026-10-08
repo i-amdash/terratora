@@ -89,6 +89,15 @@ export type AdminUser = {
   last_sign_in_at?: string;
 };
 
+export type SiteAnalyticsSummary = {
+  total_visits: number;
+  total_page_views: number;
+  unique_visitors: number;
+  views_this_month: number;
+  months: { month: string; page_views: number; visits: number }[];
+  top_pages: { path: string; page_views: number; visits: number }[];
+};
+
 export type PublicationComment = {
   id: string;
   parent_id?: string | null;

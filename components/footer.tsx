@@ -12,7 +12,7 @@ export function Footer({ content }: { content: SiteContent }) {
         <span className="footer-earth-orbit orbit-one" />
         <span className="footer-earth-orbit orbit-two" />
         <span className="footer-earth">
-          <Image src="/images/footer/earth-africa.png" alt="" width={1254} height={1254} sizes="(max-width: 600px) 165px, 280px" />
+          <Image src="/images/footer/earth-africa.png" alt="" width={1254} height={1254} sizes="(max-width: 600px) 165px, 280px" loading="eager" />
         </span>
       </div>
       <div className="shell footer-main" data-reveal>

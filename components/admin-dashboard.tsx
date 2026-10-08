@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { AdminPermission, AdminRole } from "@/lib/admin-permissions";
-import type { AdminUser, Author, Post, SiteContent } from "@/lib/types";
+import type { AdminUser, Author, Post, SiteAnalyticsSummary, SiteContent } from "@/lib/types";
 import { createBrowserSupabase } from "@/lib/supabase/browser";
 import { AdminContentEditor } from "./admin-content-editor";
 import { AdminOverview, type AdminRecord } from "./admin-overview";
@@ -13,7 +13,7 @@ type Tab = "overview" | "content" | "journal" | "messages" | "bookings" | "users
 const tabLabels: Record<Tab, string> = { overview: "Dashboard", content: "Website", journal: "Publications", messages: "Messages", bookings: "Bookings", users: "Users" };
 const tabPermissions: Partial<Record<Tab, AdminPermission>> = { content: "manage_content", journal: "manage_publications", messages: "view_messages", bookings: "view_bookings", users: "manage_users" };
 
-export function AdminDashboard({ content, posts, authors, messages, bookings, users, currentUserId, email, role, permissions }: { content: SiteContent; posts: Post[]; authors: Author[]; messages: AdminRecord[]; bookings: AdminRecord[]; users: AdminUser[]; currentUserId: string; email: string; role: AdminRole; permissions: AdminPermission[] }) {
+export function AdminDashboard({ content, posts, authors, messages, bookings, analytics, users, currentUserId, email, role, permissions }: { content: SiteContent; posts: Post[]; authors: Author[]; messages: AdminRecord[]; bookings: AdminRecord[]; analytics: SiteAnalyticsSummary; users: AdminUser[]; currentUserId: string; email: string; role: AdminRole; permissions: AdminPermission[] }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [draft, setDraft] = useState<SiteContent>(content);
   const [notice, setNotice] = useState("");
@@ -38,7 +38,7 @@ export function AdminDashboard({ content, posts, authors, messages, bookings, us
     <aside className="admin-sidebar"><div><p className="admin-brand">Terratora<span>CMS</span></p><p className="admin-user">Signed in as<br />{email}<br /><span>{role}</span></p></div><nav>{visibleTabs.map((item) => <button className={tab === item ? "active" : ""} onClick={() => setTab(item)} key={item}>{tabLabels[item]}</button>)}</nav><div><a href="/" target="_blank">View live site ↗</a><button onClick={signOut}>Sign out</button></div></aside>
     <section className="admin-workspace">
       <header><div><p className="eyebrow">Control room</p><h1>{tabLabels[tab]}</h1></div><p>{notice}</p></header>
-      {tab === "overview" && <AdminOverview posts={posts} messages={messages} bookings={bookings} onNavigate={navigate} />}
+      {tab === "overview" && <AdminOverview posts={posts} messages={messages} bookings={bookings} analytics={analytics} onNavigate={navigate} />}
       {tab === "content" && <AdminContentEditor value={draft} onChange={setDraft} onSave={saveContent} />}
       {tab === "journal" && <AdminPublications posts={posts} authors={authors} onNotice={setNotice} />}
       {tab === "messages" && <RecordList rows={messages} empty="No messages yet." fields={["first_name","last_name","email","organisation","interest","message","created_at"]} />}

@@ -67,15 +67,7 @@ export function HeroCarousel({ home }: { home: HeroContent }) {
       <div className="hero-slides" aria-hidden="true">
         {slides.map((slide, index) => (
           <div className={`hero-slide ${index === active ? "is-active" : ""}`} key={`${slide.image}-${index}`}>
-            <Image
-              src={slide.image}
-              alt=""
-              fill
-              sizes="100vw"
-              preload={index === 0}
-              quality={75}
-              style={{ objectFit: "cover", objectPosition: slide.position }}
-            />
+            {isRemoteImage(slide.image) ? <>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={slide.image} alt="" loading={index === 0 ? "eager" : "lazy"} style={{ objectPosition: slide.position }} /></> : <Image src={slide.image || "/images/hero/global-markets.jpg"} alt="" fill sizes="100vw" preload={index === 0} quality={75} style={{ objectFit: "cover", objectPosition: slide.position }} />}
           </div>
         ))}
       </div>
@@ -136,6 +128,10 @@ export function HeroCarousel({ home }: { home: HeroContent }) {
       </div>
     </section>
   );
+}
+
+function isRemoteImage(value: string) {
+  return /^https?:\/\//i.test(value);
 }
 
 function AnimatedWords({ text, start }: { text: string; start: number }) {

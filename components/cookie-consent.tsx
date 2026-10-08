@@ -31,6 +31,7 @@ export function CookieConsent() {
 
   function save(value: Preferences) {
     window.localStorage.setItem(storageKey, JSON.stringify(value));
+    window.dispatchEvent(new CustomEvent("terratora:cookie-preferences-changed", { detail: value }));
     setPreferences(value);
     setCustomising(false);
     setVisible(false);

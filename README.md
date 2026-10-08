@@ -20,7 +20,10 @@ The public website works immediately using built-in preview content. Contact, bo
 4. Run the promotion query at the bottom of `supabase/schema.sql`, using that user's email.
 5. Visit `/admin` and sign in.
 
-For an existing project, run `supabase/migrations/20261007_admin_users_roles_permissions.sql` before opening the new **Users** section. Existing CMS administrators are promoted to Owner by that migration.
+For an existing project, run these migrations in order:
+
+1. `supabase/migrations/20261007_admin_users_roles_permissions.sql` before opening the new **Users** section. Existing CMS administrators are promoted to Owner by this migration.
+2. `supabase/migrations/20261008_site_analytics.sql` to enable consent-based visit and page-view reporting on the admin dashboard.
 
 The service-role key is server-only and must never be prefixed with `NEXT_PUBLIC_`.
 

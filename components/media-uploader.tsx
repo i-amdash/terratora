@@ -8,12 +8,16 @@ export function MediaUploader({
   label = "Image",
   publication = false,
   avatar = false,
+  allowRemove = true,
+  showPreview = true,
 }: {
   value?: string;
   onChange: (value: string) => void;
   label?: string;
   publication?: boolean;
   avatar?: boolean;
+  allowRemove?: boolean;
+  showPreview?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState("");
@@ -85,9 +89,9 @@ export function MediaUploader({
     <div className={`media-uploader ${avatar ? "avatar-uploader" : ""}`}>
       <div className="media-uploader-heading">
         <div><strong>{label}</strong><small>{publication ? "1600 × 1000 px recommended. Minimum 1200 × 750 px; JPEG, PNG or WebP; maximum 8 MB." : avatar ? "Square image recommended. Minimum 300 × 300 px; maximum 8 MB." : "JPEG, PNG or WebP; maximum 8 MB."}</small></div>
-        {value && <button type="button" onClick={() => onChange("")}>Remove image</button>}
+        {value && allowRemove && <button type="button" onClick={() => onChange("")}>Remove image</button>}
       </div>
-      {value && <div className="media-preview">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={value} alt="Current upload preview" /></div>}
+      {value && showPreview && <div className="media-preview">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={value} alt="Current upload preview" /></div>}
       <button className="media-upload-button" type="button" disabled={uploading} onClick={() => inputRef.current?.click()}>{uploading ? "Uploading…" : value ? "Replace image" : "Choose image"}</button>
       <input ref={inputRef} className="media-upload-input" type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading} onChange={chooseFile} tabIndex={-1} />
       {status && <p className="media-upload-status" role="status">{status}</p>}

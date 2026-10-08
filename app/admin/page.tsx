@@ -6,7 +6,7 @@ import { isAdminRole, normaliseAdminPermissions } from "@/lib/admin-permissions"
 import { defaultContent, defaultPosts } from "@/lib/default-content";
 import { mergeSiteContent } from "@/lib/content";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/server";
-import type { AdminUser, Author, Post } from "@/lib/types";
+import type { AdminUser, Author, Post, SiteAnalyticsSummary } from "@/lib/types";
 
 export const metadata: Metadata = { title: "CMS" };
 
@@ -20,15 +20,16 @@ export default async function AdminPage() {
   const canViewBookings = hasAdminPermission(profile, "view_bookings");
   const canManageUsers = hasAdminPermission(profile, "manage_users");
   const empty = Promise.resolve({ data: [] as Record<string, unknown>[] });
-  const [contentResult, postsResult, messagesResult, bookingsResult, authorsResult, profilesResult, authUsersResult] = client ? await Promise.all([
+  const [contentResult, postsResult, messagesResult, bookingsResult, analyticsResult, authorsResult, profilesResult, authUsersResult] = client ? await Promise.all([
     client.from("site_content").select("content").eq("id","main").maybeSingle(),
     canPublish ? client.from("posts").select("*").order("published_at",{ascending:false}) : empty,
     canViewMessages ? client.from("messages").select("*").order("created_at",{ascending:false}) : empty,
     canViewBookings ? client.from("bookings").select("*").order("created_at",{ascending:false}) : empty,
+    client.rpc("get_site_analytics"),
     canPublish ? client.from("authors").select("*").order("name",{ascending:true}) : empty,
     canManageUsers ? client.from("admin_users").select("*").order("created_at",{ascending:true}) : empty,
     canManageUsers ? client.auth.admin.listUsers({ page: 1, perPage: 1000 }) : Promise.resolve({ data: { users: [] }, error: null }),
-  ]) : [{data:null},{data:[]},{data:[]},{data:[]},{data:[]},{data:[]},{data:{users:[]}}];
+  ]) : [{data:null},{data:[]},{data:[]},{data:[]},{data:null},{data:[]},{data:[]},{data:{users:[]}}];
   const saved = (contentResult.data?.content ?? {}) as Partial<typeof defaultContent>;
   const content = mergeSiteContent(saved);
   const posts = ((postsResult.data ?? defaultPosts) as Post[]).map((post) => ({ ...post, image_url: post.image_url || defaultPosts.find((fallback) => fallback.slug === post.slug)?.image_url }));
@@ -50,5 +51,23 @@ export default async function AdminPage() {
   if (canManageUsers && !adminUsers.some((item) => item.id === user.id)) {
     adminUsers.unshift({ id: user.id, email: user.email ?? "", full_name: profile.full_name, role: profile.role, permissions: profile.permissions, is_active: true, created_at: user.created_at, last_sign_in_at: user.last_sign_in_at });
   }
-  return <AdminDashboard currentUserId={user.id} email={user.email ?? "Admin"} role={profile.role} permissions={profile.permissions} users={adminUsers} content={content} posts={posts} authors={(authorsResult.data ?? []) as Author[]} messages={(messagesResult.data ?? [])} bookings={(bookingsResult.data ?? [])} />;
+  return <AdminDashboard currentUserId={user.id} email={user.email ?? "Admin"} role={profile.role} permissions={profile.permissions} users={adminUsers} content={content} posts={posts} authors={(authorsResult.data ?? []) as Author[]} messages={(messagesResult.data ?? [])} bookings={(bookingsResult.data ?? [])} analytics={normaliseAnalytics(analyticsResult.data)} />;
+}
+
+function normaliseAnalytics(value: unknown): SiteAnalyticsSummary {
+  const data = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const rows = (key: "months" | "top_pages") => Array.isArray(data[key]) ? data[key] as Record<string, unknown>[] : [];
+  return {
+    total_visits: toNumber(data.total_visits),
+    total_page_views: toNumber(data.total_page_views),
+    unique_visitors: toNumber(data.unique_visitors),
+    views_this_month: toNumber(data.views_this_month),
+    months: rows("months").map((item) => ({ month: String(item.month ?? ""), page_views: toNumber(item.page_views), visits: toNumber(item.visits) })),
+    top_pages: rows("top_pages").map((item) => ({ path: String(item.path ?? "/"), page_views: toNumber(item.page_views), visits: toNumber(item.visits) })),
+  };
+}
+
+function toNumber(value: unknown) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
 }
