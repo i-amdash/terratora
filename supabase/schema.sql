@@ -135,6 +135,33 @@ create table if not exists public.site_page_views (
   viewed_at timestamptz not null default now()
 );
 
+create table if not exists public.subscribers (
+  id uuid primary key default gen_random_uuid(),
+  name text not null check (char_length(name) between 1 and 160),
+  email text not null unique check (email = lower(email)),
+  unsubscribe_token uuid not null unique default gen_random_uuid(),
+  consent_at timestamptz not null default now(),
+  consent_source text not null default 'website',
+  subscribed_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.newsletters (
+  id uuid primary key default gen_random_uuid(),
+  subject text not null check (char_length(subject) between 1 and 200),
+  body text not null,
+  status text not null default 'sending' check (status in ('sending', 'sent', 'failed')),
+  recipient_count integer not null default 0,
+  last_error text,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  sent_at timestamptz,
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists subscribers_subscribed_at_idx on public.subscribers (subscribed_at desc);
+create index if not exists newsletters_created_at_idx on public.newsletters (created_at desc);
+
 create index if not exists site_page_views_viewed_at_idx on public.site_page_views (viewed_at desc);
 create index if not exists site_page_views_path_idx on public.site_page_views (path);
 create index if not exists site_page_views_session_idx on public.site_page_views (session_id);
@@ -267,6 +294,8 @@ alter table public.authors enable row level security;
 alter table public.publication_likes enable row level security;
 alter table public.publication_comments enable row level security;
 alter table public.publication_comment_likes enable row level security;
+alter table public.subscribers enable row level security;
+alter table public.newsletters enable row level security;
 
 drop policy if exists "Public can read content" on public.site_content;
 create policy "Public can read content" on public.site_content for select using (true);
@@ -281,7 +310,12 @@ grant all on table public.site_page_views to service_role;
 grant usage, select on sequence public.site_page_views_id_seq to service_role;
 grant execute on function public.get_site_analytics() to service_role;
 
+revoke all on table public.subscribers from public, anon, authenticated;
+revoke all on table public.newsletters from public, anon, authenticated;
+grant all on table public.subscribers to service_role;
+grant all on table public.newsletters to service_role;
+
 -- After creating an Auth user, promote it with:
 -- insert into public.admin_users (user_id, full_name, role, permissions)
--- select id, 'Terratora Owner', 'owner', array['manage_content', 'manage_publications', 'view_messages', 'view_bookings', 'manage_users']
+-- select id, 'Terratora Owner', 'owner', array['manage_content', 'manage_publications', 'manage_newsletters', 'view_messages', 'view_bookings', 'manage_users']
 -- from auth.users where email = 'you@example.com';

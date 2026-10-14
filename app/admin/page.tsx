@@ -6,7 +6,7 @@ import { isAdminRole, normaliseAdminPermissions } from "@/lib/admin-permissions"
 import { defaultContent, defaultPosts } from "@/lib/default-content";
 import { mergeSiteContent } from "@/lib/content";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/server";
-import type { AdminUser, Author, Post, SiteAnalyticsSummary } from "@/lib/types";
+import type { AdminUser, Author, Newsletter, Post, SiteAnalyticsSummary, Subscriber } from "@/lib/types";
 
 export const metadata: Metadata = { title: "CMS", robots: { index: false, follow: false, noarchive: true } };
 
@@ -19,8 +19,10 @@ export default async function AdminPage() {
   const canViewMessages = hasAdminPermission(profile, "view_messages");
   const canViewBookings = hasAdminPermission(profile, "view_bookings");
   const canManageUsers = hasAdminPermission(profile, "manage_users");
+  const canManageNewsletters = hasAdminPermission(profile, "manage_newsletters");
   const empty = Promise.resolve({ data: [] as Record<string, unknown>[] });
-  const [contentResult, postsResult, messagesResult, bookingsResult, analyticsResult, authorsResult, profilesResult, authUsersResult] = client ? await Promise.all([
+  const emptyCounted = Promise.resolve({ data: [] as Record<string, unknown>[], count: 0 });
+  const [contentResult, postsResult, messagesResult, bookingsResult, analyticsResult, authorsResult, profilesResult, authUsersResult, subscribersResult, newslettersResult] = client ? await Promise.all([
     client.from("site_content").select("content").eq("id","main").maybeSingle(),
     canPublish ? client.from("posts").select("*").order("published_at",{ascending:false}) : empty,
     canViewMessages ? client.from("messages").select("*").order("created_at",{ascending:false}) : empty,
@@ -29,7 +31,9 @@ export default async function AdminPage() {
     canPublish ? client.from("authors").select("*").order("name",{ascending:true}) : empty,
     canManageUsers ? client.from("admin_users").select("*").order("created_at",{ascending:true}) : empty,
     canManageUsers ? client.auth.admin.listUsers({ page: 1, perPage: 1000 }) : Promise.resolve({ data: { users: [] }, error: null }),
-  ]) : [{data:null},{data:[]},{data:[]},{data:[]},{data:null},{data:[]},{data:[]},{data:{users:[]}}];
+    canManageNewsletters ? client.from("subscribers").select("id,name,email,consent_at,consent_source,subscribed_at,updated_at", { count: "exact" }).order("subscribed_at", { ascending: false }).range(0, 24) : emptyCounted,
+    canManageNewsletters ? client.from("newsletters").select("id,subject,body,status,recipient_count,last_error,created_at,sent_at").order("created_at", { ascending: false }).limit(100) : empty,
+  ]) : [{data:null},{data:[]},{data:[]},{data:[]},{data:null},{data:[]},{data:[]},{data:{users:[]}},{data:[],count:0},{data:[]}];
   const saved = (contentResult.data?.content ?? {}) as Partial<typeof defaultContent>;
   const content = mergeSiteContent(saved);
   const posts = ((postsResult.data ?? defaultPosts) as Post[]).map((post) => ({ ...post, image_url: post.image_url || defaultPosts.find((fallback) => fallback.slug === post.slug)?.image_url }));
@@ -51,7 +55,7 @@ export default async function AdminPage() {
   if (canManageUsers && !adminUsers.some((item) => item.id === user.id)) {
     adminUsers.unshift({ id: user.id, email: user.email ?? "", full_name: profile.full_name, role: profile.role, permissions: profile.permissions, is_active: true, created_at: user.created_at, last_sign_in_at: user.last_sign_in_at });
   }
-  return <AdminDashboard currentUserId={user.id} email={user.email ?? "Admin"} role={profile.role} permissions={profile.permissions} users={adminUsers} content={content} posts={posts} authors={(authorsResult.data ?? []) as Author[]} messages={(messagesResult.data ?? [])} bookings={(bookingsResult.data ?? [])} analytics={normaliseAnalytics(analyticsResult.data)} />;
+  return <AdminDashboard currentUserId={user.id} email={user.email ?? "Admin"} role={profile.role} permissions={profile.permissions} users={adminUsers} content={content} posts={posts} authors={(authorsResult.data ?? []) as Author[]} subscribers={(subscribersResult.data ?? []) as Subscriber[]} subscriberCount={subscribersResult.count ?? 0} newsletters={(newslettersResult.data ?? []) as Newsletter[]} messages={(messagesResult.data ?? [])} bookings={(bookingsResult.data ?? [])} analytics={normaliseAnalytics(analyticsResult.data)} />;
 }
 
 function normaliseAnalytics(value: unknown): SiteAnalyticsSummary {

@@ -1,6 +1,7 @@
 export const adminPermissions = [
   "manage_content",
   "manage_publications",
+  "manage_newsletters",
   "view_messages",
   "view_bookings",
   "manage_users",
@@ -12,6 +13,7 @@ export type AdminRole = "owner" | "admin" | "editor" | "viewer";
 export const adminPermissionLabels: Record<AdminPermission, { label: string; description: string }> = {
   manage_content: { label: "Website content", description: "Edit and publish pages, services and homepage content." },
   manage_publications: { label: "Publications", description: "Create articles, manage authors and upload publication media." },
+  manage_newsletters: { label: "Newsletters", description: "View subscribers and compose or send subscriber emails." },
   view_messages: { label: "Messages", description: "View enquiries submitted through the contact form." },
   view_bookings: { label: "Bookings", description: "View session requests and booking details." },
   manage_users: { label: "User management", description: "Create users and change roles or permissions." },

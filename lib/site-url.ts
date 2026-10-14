@@ -3,7 +3,7 @@ const configuredUrl = (
 )?.trim();
 const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
 const localUrl = "http://localhost:3000";
-const productionFallback = "https://terratoraconsulting.com";
+const productionFallback = "https://www.terratoraconsulting.com";
 
 function resolveSiteUrl() {
   if (configuredUrl && !(process.env.NODE_ENV === "production" && isLocalUrl(configuredUrl))) return configuredUrl;

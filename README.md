@@ -24,13 +24,14 @@ For an existing project, run these migrations in order:
 
 1. `supabase/migrations/20261007_admin_users_roles_permissions.sql` before opening the new **Users** section. Existing CMS administrators are promoted to Owner by this migration.
 2. `supabase/migrations/20261008_site_analytics.sql` to enable consent-based visit and page-view reporting on the admin dashboard.
+3. `supabase/migrations/20261014_newsletter_subscriptions.sql` to add subscribers, newsletter delivery history and the newsletter permission.
 
 The service-role key is server-only and must never be prefixed with `NEXT_PUBLIC_`.
 
 ## Email notifications
 
-Create a Resend API key, verify your sending domain, then set `RESEND_API_KEY`, `NOTIFICATION_EMAIL`, and `EMAIL_FROM`. Enquiries and bookings are saved even if email delivery is unavailable.
+Create a Resend API key, verify your sending domain, then set `RESEND_API_KEY`, `NOTIFICATION_EMAIL`, and `EMAIL_FROM`. Enquiries and bookings are saved even if email delivery is unavailable. Newsletters require both `RESEND_API_KEY` and a verified `EMAIL_FROM`; each recipient receives an individual message with a private unsubscribe link.
 
 ## Deployment
 
-Deploy to Vercel, add every value from `.env.example` in the project settings, and set `SITE_URL` to the production domain. It is read only on the server and does not need the `NEXT_PUBLIC_` prefix.
+Deploy to Vercel, add every value from `.env.example` in the project settings, and set `SITE_URL=https://www.terratoraconsulting.com`. It is read only on the server and does not need the `NEXT_PUBLIC_` prefix.

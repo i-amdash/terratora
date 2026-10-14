@@ -4,6 +4,7 @@ import type { SiteContent } from "@/lib/types";
 import { Logo } from "./logo";
 import { ArrowUpRight } from "./icons";
 import { CookieSettingsButton } from "./cookie-settings-button";
+import { SubscriptionForm } from "./subscription-form";
 
 export function Footer({ content }: { content: SiteContent }) {
   return (
@@ -20,6 +21,10 @@ export function Footer({ content }: { content: SiteContent }) {
         <h2>Let&apos;s continue<br /><em>the conversation.</em></h2>
         <Link className="footer-contact-link" href="/contact">Contact us <ArrowUpRight /></Link>
       </div>
+      <section className="shell footer-subscribe" aria-labelledby="footer-subscribe-title">
+        <div><p className="eyebrow light">Stay informed</p><h3 id="footer-subscribe-title">Practical insight, delivered.</h3><p>Receive Terratora publications and ESG updates in your inbox.</p></div>
+        <SubscriptionForm source="footer" />
+      </section>
       <div className="shell footer-directory">
         <div><span>Services</span>{content.services.items.map((service) => <Link key={service.title} href={`/services#${service.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}>{service.title}</Link>)}</div>
         <div><span>Explore</span><Link href="/about">About us</Link><Link href="/journal">Publications</Link><Link href="/careers">Careers</Link><Link href="/contact">Contact</Link><Link href="/book">Book a session</Link></div>

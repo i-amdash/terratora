@@ -108,3 +108,24 @@ export type PublicationComment = {
   liked?: boolean;
   created_at: string;
 };
+
+export type Subscriber = {
+  id: string;
+  name: string;
+  email: string;
+  consent_at: string;
+  consent_source: string;
+  subscribed_at: string;
+  updated_at: string;
+};
+
+export type Newsletter = {
+  id: string;
+  subject: string;
+  body: string;
+  status: "sending" | "sent" | "failed";
+  recipient_count: number;
+  last_error?: string | null;
+  created_at: string;
+  sent_at?: string | null;
+};

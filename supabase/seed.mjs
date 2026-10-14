@@ -65,7 +65,7 @@ async function seed() {
       user_id: admin.id,
       full_name: admin.user_metadata?.full_name ?? "Terratora Owner",
       role: "owner",
-      permissions: ["manage_content", "manage_publications", "view_messages", "view_bookings", "manage_users"],
+      permissions: ["manage_content", "manage_publications", "manage_newsletters", "view_messages", "view_bookings", "manage_users"],
       is_active: true,
       updated_at: new Date().toISOString(),
     });
