@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Subscriber } from "@/lib/types";
 import { AdminDataTools, exportExcel } from "./admin-data-tools";
+import type { ConfirmAdminAction } from "./admin-feedback";
 
 type SubscriberPage = { subscribers: Subscriber[]; total: number; page: number; per_page: number; page_count: number };
 
-export function AdminSubscribers({ initialSubscribers, initialTotal, onNotice, onTotalChange }: { initialSubscribers: Subscriber[]; initialTotal: number; onNotice: (message: string) => void; onTotalChange?: (total: number) => void }) {
+export function AdminSubscribers({ initialSubscribers, initialTotal, onNotice, onConfirm, onTotalChange }: { initialSubscribers: Subscriber[]; initialTotal: number; onNotice: (message: string) => void; onConfirm: ConfirmAdminAction; onTotalChange?: (total: number) => void }) {
   const [subscribers, setSubscribers] = useState(initialSubscribers);
   const [total, setTotal] = useState(initialTotal);
   const [page, setPage] = useState(1);
@@ -45,7 +46,7 @@ export function AdminSubscribers({ initialSubscribers, initialTotal, onNotice, o
   }
 
   async function deleteSubscriber(subscriber: Subscriber) {
-    if (!window.confirm(`Permanently delete ${subscriber.name} and remove their email from the newsletter audience?`)) return;
+    if (!await onConfirm({ title: `Delete ${subscriber.name}?`, message: "Their subscriber data will be permanently removed from Terratora and the newsletter delivery audience.", confirmLabel: "Delete subscriber", tone: "danger" })) return;
     setLoading(true);
     try {
       const response = await fetch(`/api/admin/subscribers?id=${encodeURIComponent(subscriber.id)}`, { method: "DELETE" });

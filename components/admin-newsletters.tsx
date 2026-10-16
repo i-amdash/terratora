@@ -5,11 +5,12 @@ import type { Newsletter } from "@/lib/types";
 import { AdminDataTools, exportExcel, isWithinDate } from "./admin-data-tools";
 import { MediaUploader } from "./media-uploader";
 import { PublicationContent } from "./publication-content";
+import type { ConfirmAdminAction } from "./admin-feedback";
 
 type EditorView = "write" | "preview";
 type Action = "draft" | "send" | "schedule";
 
-export function AdminNewsletters({ subscriberCount, newsletters: initialNewsletters, onNotice }: { subscriberCount: number; newsletters: Newsletter[]; onNotice: (message: string) => void }) {
+export function AdminNewsletters({ subscriberCount, newsletters: initialNewsletters, onNotice, onConfirm }: { subscriberCount: number; newsletters: Newsletter[]; onNotice: (message: string) => void; onConfirm: ConfirmAdminAction }) {
   const [newsletters, setNewsletters] = useState(initialNewsletters);
   const [editing, setEditing] = useState<Newsletter | null>(null);
   const [open, setOpen] = useState(false);
@@ -44,8 +45,8 @@ export function AdminNewsletters({ subscriberCount, newsletters: initialNewslett
   async function save(action: Action) {
     if (!subject.trim() || !body.trim()) { onNotice("Enter a subject and newsletter body."); return; }
     if (action === "schedule" && !scheduledFor) { onNotice("Choose a date and time first."); return; }
-    if (action === "send" && !window.confirm(`Send this newsletter now to ${subscriberCount.toLocaleString()} subscribers?`)) return;
-    if (action === "schedule" && !window.confirm(`Schedule this newsletter for ${formatDate(scheduledFor)}?`)) return;
+    if (action === "send" && !await onConfirm({ title: "Send this newsletter now?", message: `It will be sent to ${subscriberCount.toLocaleString()} active subscribers. Delivered emails cannot be recalled.`, confirmLabel: "Send newsletter" })) return;
+    if (action === "schedule" && !await onConfirm({ title: "Schedule this newsletter?", message: `Resend will deliver it on ${formatDate(scheduledFor)}. You can edit or cancel it before delivery.`, confirmLabel: "Schedule delivery" })) return;
     setSaving(true); onNotice(action === "draft" ? "Saving draft…" : action === "schedule" ? "Scheduling newsletter…" : "Sending newsletter…");
     try {
       const response = await fetch("/api/admin/newsletters", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editing?.id, subject, body, action, scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : null }) });
@@ -57,8 +58,9 @@ export function AdminNewsletters({ subscriberCount, newsletters: initialNewslett
   }
 
   async function remove(newsletter: Newsletter) {
-    const warning = newsletter.status === "sent" ? "Delete this newsletter from your local history? Sent emails cannot be recalled." : "Delete this newsletter? Any scheduled delivery will be cancelled.";
-    if (!window.confirm(warning)) return;
+    const sent = newsletter.status === "sent";
+    const confirmed = await onConfirm({ title: sent ? "Delete this newsletter record?" : newsletter.status === "scheduled" ? "Cancel and delete this newsletter?" : "Delete this newsletter?", message: sent ? "This removes it from your admin history only. Emails already delivered to subscribers cannot be recalled." : newsletter.status === "scheduled" ? "The scheduled delivery will be cancelled before the newsletter is deleted." : "This draft will be permanently removed.", confirmLabel: sent ? "Delete history" : "Delete newsletter", tone: "danger" });
+    if (!confirmed) return;
     const response = await fetch(`/api/admin/newsletters?id=${encodeURIComponent(newsletter.id)}`, { method: "DELETE" }); const result = await response.json().catch(() => ({}));
     if (!response.ok) { onNotice(result.error || "Newsletter could not be deleted."); return; }
     setNewsletters((current) => current.filter((item) => item.id !== newsletter.id)); onNotice("Newsletter deleted.");

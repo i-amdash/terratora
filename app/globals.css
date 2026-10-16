@@ -458,6 +458,33 @@ button { color:inherit; }
 .admin-workspace>header { display:flex; justify-content:space-between; align-items:end; padding-bottom:25px; border-bottom:1px solid var(--line); margin-bottom:35px; }
 .admin-workspace>header h1 { font-size:52.2px; text-transform:capitalize; letter-spacing:-.06em; margin:6px 0 0; }
 .admin-workspace>header p { font-size:12px; }
+.admin-toast { position:fixed; z-index:520; top:24px; right:24px; width:min(390px,calc(100vw - 48px)); display:grid; grid-template-columns:36px minmax(0,1fr) 24px; gap:13px; align-items:start; padding:17px; border:1px solid rgba(5,68,94,.12); background:white; color:var(--ink); box-shadow:0 22px 70px rgba(1,29,39,.2); animation:admin-toast-enter .28s cubic-bezier(.2,.8,.2,1); }
+@keyframes admin-toast-enter { from { opacity:0; transform:translateY(-12px) scale(.98); } }
+.admin-toast:after { content:""; position:absolute; left:0; bottom:0; width:100%; height:3px; background:var(--grotto); }
+.admin-toast.success:after { background:#3e8a56; }
+.admin-toast.error:after { background:#a2382b; }
+.admin-toast-mark { width:36px; height:36px; display:grid; place-items:center; border-radius:50%; background:var(--baby); color:var(--ink); font-size:12px; font-weight:750; }
+.admin-toast.success .admin-toast-mark { background:#e7f5eb; color:#2f7042; }
+.admin-toast.error .admin-toast-mark { background:#f4e9e6; color:#9a463a; }
+.admin-toast strong,.admin-toast p { display:block; }
+.admin-toast strong { margin:1px 0 5px; font-size:9px; text-transform:uppercase; letter-spacing:.11em; }
+.admin-toast p { margin:0; font-size:11px; line-height:1.5; opacity:.68; }
+.admin-toast>button { width:24px; height:24px; border:0; background:transparent; color:inherit; cursor:pointer; font-size:19px; line-height:1; opacity:.5; }
+.admin-confirm-layer { position:fixed; inset:0; z-index:540; display:grid; place-items:center; padding:24px; }
+.admin-confirm-backdrop { position:absolute; inset:0; width:100%; border:0; background:rgba(1,29,39,.7); backdrop-filter:blur(7px); cursor:pointer; }
+.admin-confirm-card { position:relative; width:min(470px,100%); padding:34px; background:#fff; color:var(--ink); box-shadow:0 35px 110px rgba(0,0,0,.3); animation:admin-confirm-enter .3s cubic-bezier(.2,.8,.2,1); }
+@keyframes admin-confirm-enter { from { opacity:0; transform:translateY(15px) scale(.98); } }
+.admin-confirm-card:before { content:""; position:absolute; inset:0 0 auto; height:5px; background:var(--grotto); }
+.admin-confirm-card.danger:before { background:#a2382b; }
+.admin-confirm-mark { width:42px; height:42px; display:grid; place-items:center; margin-bottom:24px; border-radius:50%; background:var(--baby); font-size:15px; font-weight:750; }
+.admin-confirm-card.danger .admin-confirm-mark { background:#f4e9e6; color:#9a463a; }
+.admin-confirm-card>.eyebrow { margin:0 0 8px; font-size:8px; opacity:.52; }
+.admin-confirm-card h2 { margin:0 0 13px; font-size:27px; line-height:1.05; letter-spacing:-.045em; }
+.admin-confirm-card>p:not(.eyebrow) { margin:0; max-width:390px; font-size:12px; line-height:1.65; opacity:.68; }
+.admin-confirm-card>footer { display:flex; justify-content:flex-end; gap:10px; margin-top:30px; padding-top:20px; border-top:1px solid var(--line); }
+.admin-confirm-card>footer button { border:1px solid var(--line); border-radius:100px; background:white; color:var(--ink); padding:11px 16px; cursor:pointer; font:inherit; font-size:10px; font-weight:650; }
+.admin-confirm-card>footer .confirm { border-color:var(--ink); background:var(--ink); color:white; }
+.admin-confirm-card>footer .danger { border-color:#a2382b; background:#a2382b; color:white; }
 .editor-panel { display:grid; grid-template-columns:300px minmax(500px,1fr); gap:30px; }
 .editor-copy,.admin-card,.record,.empty-state { background:white; padding:30px; }
 .editor-copy h2,.admin-card h2 { font-size:25.2px; margin:0 0 20px; }
@@ -1181,20 +1208,20 @@ button { color:inherit; }
 }
 
 /* Newsletter subscriptions */
-.footer-subscribe { position:relative; z-index:1; display:grid; grid-template-columns:.72fr 1.28fr; gap:clamp(35px,7vw,110px); align-items:start; margin-top:70px; padding-top:38px; padding-bottom:38px; border-top:1px solid rgba(255,255,255,.16); border-bottom:1px solid rgba(255,255,255,.16); }
+.footer-subscribe { position:relative; z-index:1; display:grid; grid-template-columns:.78fr 1.22fr; gap:clamp(45px,7vw,110px); align-items:end; margin-top:70px; padding-top:42px; padding-bottom:42px; border-top:1px solid rgba(255,255,255,.16); border-bottom:1px solid rgba(255,255,255,.16); }
 .footer-subscribe .eyebrow { margin:0 0 12px; }
 .footer-subscribe h3 { margin:0 0 10px; font-size:clamp(25px,2.7vw,38px); line-height:1.05; letter-spacing:-.045em; }
 .footer-subscribe>div>p:last-child { max-width:390px; margin:0; color:rgba(255,255,255,.62); font-size:11px; line-height:1.6; }
 .subscription-form { min-width:0; }
-.subscription-fields { display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:end; }
+.subscription-fields { display:grid; grid-template-columns:1fr 1fr; gap:20px 28px; align-items:end; }
 .subscription-fields>label { min-width:0; }
-.subscription-fields>label>span { display:block; margin-bottom:8px; color:rgba(255,255,255,.62); font-size:8px; text-transform:uppercase; letter-spacing:.12em; }
-.subscription-fields input { width:100%; min-height:46px; border:1px solid rgba(255,255,255,.24); border-radius:0; background:rgba(255,255,255,.06); color:white; padding:11px 13px; outline:none; }
+.subscription-fields>label>span { display:block; margin-bottom:4px; color:rgba(255,255,255,.58); font-size:8px; text-transform:uppercase; letter-spacing:.14em; }
+.subscription-fields input { width:100%; min-height:46px; border:0; border-bottom:1px solid rgba(255,255,255,.35); border-radius:0; background:transparent; color:white; padding:11px 0; outline:none; font-size:13px; }
 .subscription-fields input::placeholder { color:rgba(255,255,255,.42); }
-.subscription-fields input:focus { border-color:var(--baby); box-shadow:0 0 0 3px rgba(212,241,244,.08); }
-.subscription-submit { min-height:46px; justify-content:space-between; background:var(--baby); color:var(--ink); }
+.subscription-fields input:focus { border-color:var(--baby); box-shadow:none; }
+.subscription-submit { grid-column:1/-1; justify-self:end; min-height:44px; justify-content:space-between; background:var(--baby); color:var(--ink); }
 .subscription-submit svg { width:17px; }
-.subscription-consent { display:flex; align-items:flex-start; gap:9px; margin-top:13px; color:rgba(255,255,255,.58); font-size:8px; line-height:1.55; cursor:pointer; }
+.subscription-consent { display:flex; align-items:flex-start; gap:9px; max-width:610px; margin:16px 0 0 auto; color:rgba(255,255,255,.58); font-size:8px; line-height:1.55; cursor:pointer; }
 .subscription-consent input { width:14px; height:14px; flex:none; margin:1px 0 0; accent-color:var(--baby); }
 .subscription-consent a { color:white; text-decoration:underline; text-underline-offset:2px; }
 .subscription-status { margin:13px 0 0; padding:9px 11px; background:rgba(212,241,244,.12); color:white; font-size:9px; line-height:1.5; }
@@ -1214,7 +1241,8 @@ button { color:inherit; }
 .subscription-form.compact .subscription-fields>label>span { color:rgba(5,68,94,.62); }
 .subscription-form.compact .subscription-fields input { border-color:rgba(5,68,94,.2); background:white; color:var(--ink); }
 .subscription-form.compact .subscription-fields input::placeholder { color:rgba(5,68,94,.38); }
-.subscription-form.compact .subscription-submit { grid-column:1/-1; width:100%; background:var(--ink); color:white; }
+.subscription-form.compact .subscription-submit { grid-column:1/-1; justify-self:stretch; width:100%; background:var(--ink); color:white; }
+.subscription-form.compact .subscription-consent { max-width:none; margin-left:0; }
 .subscription-form.compact .subscription-consent { color:rgba(5,68,94,.62); }
 .subscription-form.compact .subscription-consent a { color:var(--ink); }
 .subscription-form.compact .subscription-status { background:var(--baby); color:var(--ink); }
@@ -1329,6 +1357,11 @@ button { color:inherit; }
   .admin-data-tools .admin-export-button { width:100%; }
   .subscriber-drawer { width:100%; }
   .top-locations ol { grid-template-columns:1fr; }
+  .admin-toast { top:12px; right:12px; width:calc(100vw - 24px); }
+  .admin-confirm-layer { padding:14px; }
+  .admin-confirm-card { padding:28px 22px 22px; }
+  .admin-confirm-card>footer { align-items:stretch; flex-direction:column-reverse; }
+  .admin-confirm-card>footer button { width:100%; }
 }
 
 @media(prefers-reduced-motion:reduce) {

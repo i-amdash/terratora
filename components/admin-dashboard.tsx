@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { AdminPermission, AdminRole } from "@/lib/admin-permissions";
 import type { AdminUser, Author, Newsletter, Post, SiteAnalyticsSummary, SiteContent, Subscriber } from "@/lib/types";
 import { createBrowserSupabase } from "@/lib/supabase/browser";
@@ -11,6 +11,7 @@ import { AdminUsers } from "./admin-users";
 import { AdminNewsletters } from "./admin-newsletters";
 import { AdminSubscribers } from "./admin-subscribers";
 import { AdminDataTools, exportExcel, isWithinDate } from "./admin-data-tools";
+import { AdminConfirmDialog, AdminToast, type AdminConfirmation, type AdminToastTone, type ConfirmAdminAction } from "./admin-feedback";
 
 type Tab = "overview" | "content" | "journal" | "subscribers" | "newsletters" | "messages" | "bookings" | "users";
 const tabLabels: Record<Tab, string> = { overview: "Dashboard", content: "Website", journal: "Publications", subscribers: "Subscribers", newsletters: "Newsletters", messages: "Messages", bookings: "Bookings", users: "Users" };
@@ -19,39 +20,72 @@ const tabPermissions: Partial<Record<Tab, AdminPermission>> = { content: "manage
 export function AdminDashboard({ content, posts, authors, subscribers, subscriberCount, newsletters, messages, bookings, analytics, users, currentUserId, email, role, permissions }: { content: SiteContent; posts: Post[]; authors: Author[]; subscribers: Subscriber[]; subscriberCount: number; newsletters: Newsletter[]; messages: AdminRecord[]; bookings: AdminRecord[]; analytics: SiteAnalyticsSummary; users: AdminUser[]; currentUserId: string; email: string; role: AdminRole; permissions: AdminPermission[] }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [draft, setDraft] = useState<SiteContent>(content);
-  const [notice, setNotice] = useState("");
+  const [toast, setToast] = useState<{ id: number; message: string; tone: AdminToastTone } | null>(null);
+  const [confirmation, setConfirmation] = useState<AdminConfirmation | null>(null);
+  const confirmationResolver = useRef<((confirmed: boolean) => void) | null>(null);
   const [subscriberTotal, setSubscriberTotal] = useState(subscriberCount);
   const hasPermission = (permission: AdminPermission) => role === "owner" || permissions.includes(permission);
   const visibleTabs = (Object.keys(tabLabels) as Tab[]).filter((item) => !tabPermissions[item] || hasPermission(tabPermissions[item]!));
 
+  const notify = useCallback((message: string, tone?: AdminToastTone) => {
+    if (!message) { setToast(null); return; }
+    setToast({ id: Date.now(), message, tone: tone || inferToastTone(message) });
+  }, []);
+
+  const confirmAction: ConfirmAdminAction = useCallback((nextConfirmation) => new Promise((resolve) => {
+    confirmationResolver.current?.(false);
+    confirmationResolver.current = resolve;
+    setConfirmation(nextConfirmation);
+  }), []);
+
+  const resolveConfirmation = useCallback((confirmed: boolean) => {
+    confirmationResolver.current?.(confirmed);
+    confirmationResolver.current = null;
+    setConfirmation(null);
+  }, []);
+
+  useEffect(() => {
+    if (!toast || toast.message.endsWith("…")) return;
+    const timer = window.setTimeout(() => setToast((current) => current?.id === toast.id ? null : current), 4800);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
   async function saveContent() {
-    setNotice("Saving…");
+    notify("Saving…");
     try {
       const response = await fetch("/api/admin/content", { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(draft) });
       if (!response.ok) throw new Error((await response.json()).error);
-      setNotice("Published successfully.");
-    } catch (e) { setNotice(e instanceof Error ? e.message : "Could not save."); }
+      notify("Published successfully.", "success");
+    } catch (e) { notify(e instanceof Error ? e.message : "Could not save.", "error"); }
   }
   async function signOut() { await createBrowserSupabase()?.auth.signOut(); window.location.reload(); }
   function navigate(destination: "journal" | "messages" | "bookings") {
     if (visibleTabs.includes(destination)) setTab(destination);
-    else setNotice("Your role does not include access to that section.");
+    else notify("Your role does not include access to that section.", "error");
   }
 
   return <div className="admin-shell">
     <aside className="admin-sidebar"><div><p className="admin-brand">Terratora<span>CMS</span></p><p className="admin-user">Signed in as<br />{email}<br /><span>{role}</span></p></div><nav>{visibleTabs.map((item) => <button className={tab === item ? "active" : ""} onClick={() => setTab(item)} key={item}>{tabLabels[item]}</button>)}</nav><div><a href="/" target="_blank">View live site ↗</a><button onClick={signOut}>Sign out</button></div></aside>
     <section className="admin-workspace">
-      <header><div><p className="eyebrow">Control room</p><h1>{tabLabels[tab]}</h1></div><p>{notice}</p></header>
+      <header><div><p className="eyebrow">Control room</p><h1>{tabLabels[tab]}</h1></div></header>
       {tab === "overview" && <AdminOverview posts={posts} messages={messages} bookings={bookings} analytics={analytics} onNavigate={navigate} />}
       {tab === "content" && <AdminContentEditor value={draft} onChange={setDraft} onSave={saveContent} />}
-      {tab === "journal" && <AdminPublications posts={posts} authors={authors} onNotice={setNotice} />}
-      {tab === "subscribers" && <AdminSubscribers initialSubscribers={subscribers} initialTotal={subscriberTotal} onNotice={setNotice} onTotalChange={setSubscriberTotal} />}
-      {tab === "newsletters" && <AdminNewsletters subscriberCount={subscriberTotal} newsletters={newsletters} onNotice={setNotice} />}
+      {tab === "journal" && <AdminPublications posts={posts} authors={authors} onNotice={notify} onConfirm={confirmAction} />}
+      {tab === "subscribers" && <AdminSubscribers initialSubscribers={subscribers} initialTotal={subscriberTotal} onNotice={notify} onConfirm={confirmAction} onTotalChange={setSubscriberTotal} />}
+      {tab === "newsletters" && <AdminNewsletters subscriberCount={subscriberTotal} newsletters={newsletters} onNotice={notify} onConfirm={confirmAction} />}
       {tab === "messages" && <RecordList rows={messages} empty="No messages yet." filename="terratora-messages" fields={["first_name","last_name","email","organisation","interest","message","created_at"]} />}
       {tab === "bookings" && <RecordList rows={bookings} empty="No session requests yet." filename="terratora-bookings" fields={["first_name","last_name","email","organisation","session_type","preferred_date","preferred_time","timezone","message","status"]} />}
-      {tab === "users" && <AdminUsers initialUsers={users} currentUserId={currentUserId} currentRole={role} onNotice={setNotice} />}
+      {tab === "users" && <AdminUsers initialUsers={users} currentUserId={currentUserId} currentRole={role} onNotice={notify} />}
     </section>
+    {toast && <AdminToast key={toast.id} message={toast.message} tone={toast.tone} onClose={() => setToast(null)} />}
+    <AdminConfirmDialog confirmation={confirmation} onResolve={resolveConfirmation} />
   </div>;
+}
+
+function inferToastTone(message: string): AdminToastTone {
+  if (/could not|failed|error|invalid|missing|permission|unavailable|already|enter |choose |do not have|cannot/i.test(message)) return "error";
+  if (/saved|published|updated|created|deleted|sent|scheduled|success/i.test(message)) return "success";
+  return "info";
 }
 
 function RecordList({ rows, fields, empty, filename }: { rows: AdminRecord[]; fields: string[]; empty: string; filename: string }) {

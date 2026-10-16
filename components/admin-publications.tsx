@@ -6,10 +6,11 @@ import { AdminAuthors } from "./admin-authors";
 import { MediaUploader } from "./media-uploader";
 import { PublicationContent } from "./publication-content";
 import { AdminDataTools, exportExcel, isWithinDate } from "./admin-data-tools";
+import type { ConfirmAdminAction } from "./admin-feedback";
 
 type EditorView = "write" | "preview";
 
-export function AdminPublications({ posts, authors, onNotice }: { posts: Post[]; authors: Author[]; onNotice: (message: string) => void }) {
+export function AdminPublications({ posts, authors, onNotice, onConfirm }: { posts: Post[]; authors: Author[]; onNotice: (message: string) => void; onConfirm: ConfirmAdminAction }) {
   const [authorList, setAuthorList] = useState(authors);
   const [publicationList, setPublicationList] = useState(posts);
   const emptyPost = (): Partial<Post> => ({ title: "", slug: "", excerpt: "", body: "", category: "Perspective", image_url: "", author_id: authorList[0]?.id ?? "", published_at: new Date().toISOString().slice(0, 10), featured: false, published: false });
@@ -69,9 +70,12 @@ export function AdminPublications({ posts, authors, onNotice }: { posts: Post[];
   const filteredPublications = publicationList.filter((post) => isWithinDate(post.published_at || post.created_at, dateFrom, dateTo));
 
   async function deletePublication(slug: string) {
-    if (!window.confirm("Delete this publication? This cannot be undone.")) return;
+    if (!await onConfirm({ title: "Delete this publication?", message: "The article and its engagement history will be permanently removed. This cannot be undone.", confirmLabel: "Delete publication", tone: "danger" })) return;
     const response = await fetch(`/api/admin/posts?slug=${encodeURIComponent(slug)}`, { method: "DELETE" });
-    if (response.ok) window.location.reload();
+    if (response.ok) {
+      setPublicationList((current) => current.filter((post) => post.slug !== slug));
+      onNotice("Publication deleted.");
+    }
     else onNotice((await response.json()).error);
   }
 
