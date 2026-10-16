@@ -1213,15 +1213,15 @@ button { color:inherit; }
 .footer-subscribe h3 { margin:0 0 10px; font-size:clamp(25px,2.7vw,38px); line-height:1.05; letter-spacing:-.045em; }
 .footer-subscribe>div>p:last-child { max-width:390px; margin:0; color:rgba(255,255,255,.62); font-size:11px; line-height:1.6; }
 .subscription-form { min-width:0; }
-.subscription-fields { display:grid; grid-template-columns:1fr 1fr; gap:20px 28px; align-items:end; }
+.subscription-fields { display:grid; grid-template-columns:minmax(130px,.85fr) minmax(170px,1.15fr) minmax(145px,auto); gap:20px 24px; align-items:end; }
 .subscription-fields>label { min-width:0; }
 .subscription-fields>label>span { display:block; margin-bottom:4px; color:rgba(255,255,255,.58); font-size:8px; text-transform:uppercase; letter-spacing:.14em; }
 .subscription-fields input { width:100%; min-height:46px; border:0; border-bottom:1px solid rgba(255,255,255,.35); border-radius:0; background:transparent; color:white; padding:11px 0; outline:none; font-size:13px; }
 .subscription-fields input::placeholder { color:rgba(255,255,255,.42); }
 .subscription-fields input:focus { border-color:var(--baby); box-shadow:none; }
-.subscription-submit { grid-column:1/-1; justify-self:end; min-height:44px; justify-content:space-between; background:var(--baby); color:var(--ink); }
+.subscription-submit { justify-self:stretch; min-height:44px; justify-content:space-between; background:var(--baby); color:var(--ink); }
 .subscription-submit svg { width:17px; }
-.subscription-consent { display:flex; align-items:flex-start; gap:9px; max-width:610px; margin:16px 0 0 auto; color:rgba(255,255,255,.58); font-size:8px; line-height:1.55; cursor:pointer; }
+.subscription-consent { display:flex; align-items:flex-start; gap:9px; max-width:none; margin:16px 0 0; color:rgba(255,255,255,.58); font-size:8px; line-height:1.55; cursor:pointer; }
 .subscription-consent input { width:14px; height:14px; flex:none; margin:1px 0 0; accent-color:var(--baby); }
 .subscription-consent a { color:white; text-decoration:underline; text-underline-offset:2px; }
 .subscription-status { margin:13px 0 0; padding:9px 11px; background:rgba(212,241,244,.12); color:white; font-size:9px; line-height:1.5; }
