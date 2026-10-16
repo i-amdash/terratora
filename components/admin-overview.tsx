@@ -30,7 +30,7 @@ export function AdminOverview({ posts, messages, bookings, analytics, onNavigate
     { label: "Unique visitors", value: analytics.unique_visitors, note: "Consented visitors" },
     { label: "Total bookings", value: bookings.length, note: `${bookingsThisMonth} received this month`, destination: "bookings" as const },
     { label: "Messages", value: messages.length, note: `${newMessages} awaiting review`, destination: "messages" as const },
-    { label: "Publications", value: posts.length, note: "Published articles", destination: "journal" as const },
+    { label: "Publications", value: posts.filter((post) => post.published !== false).length, note: "Published articles", destination: "journal" as const },
     { label: "Publication reads", value: totalReads, note: "Across all articles", destination: "journal" as const },
     { label: "Publication shares", value: totalShares, note: "Across all articles", destination: "journal" as const },
     { label: "Publication likes", value: totalLikes, note: "Across all articles", destination: "journal" as const },
@@ -49,6 +49,7 @@ export function AdminOverview({ posts, messages, bookings, analytics, onNavigate
       <section className="overview-panel traffic-chart"><header><div><p className="eyebrow">Site traffic</p><h3>Page views over six months</h3></div><small>Analytics-consented visits only</small></header><div className="bar-chart" aria-label="Page views in each of the last six months">{trafficMonths.map((month) => <div className="bar-column" key={month.month}><div><span style={{ "--bar-height": `${Math.max(month.page_views ? 12 : 2, month.page_views / largestTrafficMonth * 100)}%` } as CSSProperties}><b>{month.page_views}</b></span></div><small>{formatMonth(month.month)}</small></div>)}</div></section>
       <section className="overview-panel top-pages"><header><div><p className="eyebrow">Page performance</p><h3>Most visited pages</h3></div></header>{analytics.top_pages.length ? <ol>{analytics.top_pages.map((page, index) => <li key={page.path}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{pageName(page.path)}</strong><small>{page.path} · {page.page_views.toLocaleString()} views · {page.visits.toLocaleString()} visits</small></div></li>)}</ol> : <p className="overview-empty">Page activity will appear after visitors accept analytics cookies.</p>}</section>
     </div>
+    <section className="overview-panel top-locations"><header><div><p className="eyebrow">Audience geography</p><h3>Top visitor locations</h3></div><small>Approximate city and country from Vercel request headers</small></header>{analytics.top_locations.length ? <ol>{analytics.top_locations.map((location, index) => <li key={`${location.country_code}-${location.city}`}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{location.city === "Unknown" ? countryName(location.country_code) : `${location.city}, ${countryName(location.country_code)}`}</strong><small>{location.page_views.toLocaleString()} views · {location.visits.toLocaleString()} visits</small></div></li>)}</ol> : <p className="overview-empty">Location data will appear after deployment on Vercel and new consented visits.</p>}</section>
     <section className="overview-panel recent-activity"><header><div><p className="eyebrow">Inbox activity</p><h3>Latest enquiries</h3></div></header>{recentActivity.length ? <div>{recentActivity.map((item, index) => <article key={`${item.type}-${item.date}-${index}`}><span className={`activity-type ${item.type.toLowerCase()}`}>{item.type}</span><div><strong>{item.title}</strong><small>{item.detail}</small></div><time>{formatDate(item.date)}</time></article>)}</div> : <p className="overview-empty">New booking requests and messages will appear here.</p>}</section>
   </div>;
 }
@@ -62,6 +63,12 @@ function formatMonth(value: string) {
 function pageName(path: string) {
   if (path === "/") return "Homepage";
   return path.split("/").filter(Boolean).map((part) => part.replaceAll("-", " ")).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" / ");
+}
+
+function countryName(countryCode: string) {
+  if (countryCode === "Unknown") return countryCode;
+  try { return new Intl.DisplayNames(["en"], { type: "region" }).of(countryCode.toUpperCase()) || countryCode; }
+  catch { return countryCode; }
 }
 
 function fullName(item: AdminRecord) {

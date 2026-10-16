@@ -14,6 +14,17 @@ export function renderNewsletterEmail({ subject, body, name, unsubscribeToken }:
   };
 }
 
+export function renderBroadcastNewsletterEmail({ subject, body }: { subject: string; body: string }) {
+  const content = renderMarkdown(body);
+  const safeSubject = escapeHtml(subject);
+  const name = "{{{contact.first_name|there}}}";
+  const unsubscribeUrl = "{{{contact.unsubscribe_url}}}";
+  return {
+    text: `Hello there,\n\n${plainText(body)}\n\nUnsubscribe and request removal of your subscriber data: ${unsubscribeUrl}`,
+    html: `<!doctype html><html><body style="margin:0;background:#eef4f3;color:#05445e;font-family:Arial,sans-serif"><div style="display:none;max-height:0;overflow:hidden">${safeSubject}</div><div style="max-width:680px;margin:0 auto;padding:30px 16px"><div style="background:#05445e;padding:24px 30px;color:#fff;font-size:22px;font-weight:700;letter-spacing:-.5px">Terratora</div><main style="background:#fff;padding:38px 30px"><p style="margin:0 0 24px;font-size:14px;line-height:1.7">Hello ${name},</p><h1 style="margin:0 0 30px;font-size:34px;line-height:1.08;letter-spacing:-1px">${safeSubject}</h1>${content}</main><footer style="padding:24px 30px;background:#d4f1f4;font-size:11px;line-height:1.65;color:#315d6c"><p style="margin:0 0 8px">You received this email because you subscribed to Terratora publications and updates.</p><p style="margin:0"><a href="${unsubscribeUrl}" style="color:#05445e;text-decoration:underline">Unsubscribe and request deletion of your subscriber data</a></p></footer></div></body></html>`,
+  };
+}
+
 function renderMarkdown(body: string) {
   return body.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean).map(renderBlock).join("");
 }

@@ -26,10 +26,19 @@ export async function POST(request: Request) {
     path,
     session_id: sessionId,
     visitor_id: visitorId,
+    country_code: cleanHeader(request.headers.get("x-vercel-ip-country"), 8),
+    region: cleanHeader(request.headers.get("x-vercel-ip-country-region"), 100),
+    city: cleanHeader(request.headers.get("x-vercel-ip-city"), 160),
   });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store" } });
+}
+
+function cleanHeader(value: string | null, limit: number) {
+  if (!value) return null;
+  try { return decodeURIComponent(value).trim().slice(0, limit) || null; }
+  catch { return value.trim().slice(0, limit) || null; }
 }
 
 function normalisePath(value: string) {

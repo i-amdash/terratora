@@ -132,6 +132,9 @@ create table if not exists public.site_page_views (
   session_id text not null check (char_length(session_id) between 1 and 100),
   visitor_id text not null check (char_length(visitor_id) between 1 and 100),
   path text not null check (char_length(path) between 1 and 300),
+  country_code text,
+  region text,
+  city text,
   viewed_at timestamptz not null default now()
 );
 
@@ -150,12 +153,21 @@ create table if not exists public.newsletters (
   id uuid primary key default gen_random_uuid(),
   subject text not null check (char_length(subject) between 1 and 200),
   body text not null,
-  status text not null default 'sending' check (status in ('sending', 'sent', 'failed')),
+  status text not null default 'draft' check (status in ('draft', 'sending', 'scheduled', 'sent', 'failed', 'canceled')),
   recipient_count integer not null default 0,
   last_error text,
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   sent_at timestamptz,
+  scheduled_for timestamptz,
+  resend_broadcast_id text,
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.newsletter_settings (
+  id text primary key,
+  resend_segment_id text,
+  created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
@@ -165,6 +177,7 @@ create index if not exists newsletters_created_at_idx on public.newsletters (cre
 create index if not exists site_page_views_viewed_at_idx on public.site_page_views (viewed_at desc);
 create index if not exists site_page_views_path_idx on public.site_page_views (path);
 create index if not exists site_page_views_session_idx on public.site_page_views (session_id);
+create index if not exists site_page_views_location_idx on public.site_page_views (country_code, city);
 
 create or replace function public.get_site_analytics()
 returns jsonb
@@ -196,6 +209,18 @@ as $$
         order by page_views desc, path
         limit 10
       ) as page_totals
+    ), '[]'::jsonb),
+    'top_locations', coalesce((
+      select jsonb_agg(to_jsonb(location_totals) order by page_views desc, country_code, city)
+      from (
+        select coalesce(nullif(country_code, ''), 'Unknown') as country_code,
+          coalesce(nullif(city, ''), 'Unknown') as city,
+          count(*) as page_views, count(distinct session_id) as visits
+        from public.site_page_views
+        group by coalesce(nullif(country_code, ''), 'Unknown'), coalesce(nullif(city, ''), 'Unknown')
+        order by page_views desc
+        limit 10
+      ) as location_totals
     ), '[]'::jsonb)
   );
 $$;
@@ -284,6 +309,16 @@ update public.bookings set timezone = 'Africa/Lagos' where timezone is null;
 alter table public.bookings alter column timezone set default 'Africa/Lagos';
 alter table public.bookings alter column timezone set not null;
 
+alter table public.site_page_views add column if not exists country_code text;
+alter table public.site_page_views add column if not exists region text;
+alter table public.site_page_views add column if not exists city text;
+
+alter table public.newsletters drop constraint if exists newsletters_status_check;
+alter table public.newsletters add constraint newsletters_status_check check (status in ('draft', 'sending', 'scheduled', 'sent', 'failed', 'canceled'));
+alter table public.newsletters alter column status set default 'draft';
+alter table public.newsletters add column if not exists scheduled_for timestamptz;
+alter table public.newsletters add column if not exists resend_broadcast_id text;
+
 alter table public.admin_users enable row level security;
 alter table public.site_content enable row level security;
 alter table public.posts enable row level security;
@@ -296,6 +331,7 @@ alter table public.publication_comments enable row level security;
 alter table public.publication_comment_likes enable row level security;
 alter table public.subscribers enable row level security;
 alter table public.newsletters enable row level security;
+alter table public.newsletter_settings enable row level security;
 
 drop policy if exists "Public can read content" on public.site_content;
 create policy "Public can read content" on public.site_content for select using (true);
@@ -314,6 +350,8 @@ revoke all on table public.subscribers from public, anon, authenticated;
 revoke all on table public.newsletters from public, anon, authenticated;
 grant all on table public.subscribers to service_role;
 grant all on table public.newsletters to service_role;
+revoke all on table public.newsletter_settings from public, anon, authenticated;
+grant all on table public.newsletter_settings to service_role;
 
 -- After creating an Auth user, promote it with:
 -- insert into public.admin_users (user_id, full_name, role, permissions)

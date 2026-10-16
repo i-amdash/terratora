@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { adminPermissionLabels, adminPermissions, adminRoleDefaults, adminRoleLabels, type AdminPermission, type AdminRole } from "@/lib/admin-permissions";
 import type { AdminUser } from "@/lib/types";
+import { AdminDataTools, exportExcel, isWithinDate } from "./admin-data-tools";
 
 type UserDraft = {
   id?: string;
@@ -22,9 +23,12 @@ export function AdminUsers({ initialUsers, currentUserId, currentRole, onNotice 
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const editing = Boolean(draft.id);
   const editingSelf = draft.id === currentUserId;
+  const filteredUsers = users.filter((user) => isWithinDate(user.created_at, dateFrom, dateTo));
 
   function createUser() {
     setDraft(emptyDraft());
@@ -73,10 +77,11 @@ export function AdminUsers({ initialUsers, currentUserId, currentRole, onNotice 
       <div><p className="eyebrow">Access control</p><h2>CMS users</h2><p>Create accounts and decide what each person can access.</p></div>
       <button type="button" className="button button-dark" onClick={createUser}>New user <span aria-hidden="true">＋</span></button>
     </header>
+    <AdminDataTools from={dateFrom} to={dateTo} onFromChange={setDateFrom} onToChange={setDateTo} onClear={() => { setDateFrom(""); setDateTo(""); }} count={filteredUsers.length} onExport={() => exportExcel("terratora-cms-users", filteredUsers.map((user) => ({ name: user.full_name, email: user.email, role: user.role, permissions: user.permissions.join(", "), active: user.is_active, created_at: user.created_at, last_sign_in_at: user.last_sign_in_at })))} />
     <div className="publication-table-wrap">
       <table className="publication-table user-table">
         <thead><tr><th>User</th><th>Role</th><th>Permissions</th><th>Status</th><th>Last sign-in</th><th /></tr></thead>
-        <tbody>{users.map((user) => <tr key={user.id}>
+        <tbody>{filteredUsers.map((user) => <tr key={user.id}>
           <td><strong>{user.full_name || "Unnamed user"}{user.id === currentUserId ? " (You)" : ""}</strong><small>{user.email}</small></td>
           <td><span className={`user-role role-${user.role}`}>{adminRoleLabels[user.role]}</span></td>
           <td><small>{user.permissions.length === adminPermissions.length ? "All permissions" : user.permissions.map((permission) => adminPermissionLabels[permission].label).join(", ") || "No permissions"}</small></td>
@@ -85,7 +90,7 @@ export function AdminUsers({ initialUsers, currentUserId, currentRole, onNotice 
           <td><button className="text-button" type="button" disabled={currentRole !== "owner" && user.role === "owner"} onClick={() => editUser(user)}>Edit</button></td>
         </tr>)}</tbody>
       </table>
-      {!users.length && <div className="empty-state">Apply the admin roles migration to begin managing users.</div>}
+      {!filteredUsers.length && <div className="empty-state">{users.length ? "No users match this date range." : "Apply the admin roles migration to begin managing users."}</div>}
     </div>
 
     {open && <div className="publication-drawer-layer">

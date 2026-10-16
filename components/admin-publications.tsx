@@ -5,19 +5,22 @@ import type { Author, Post } from "@/lib/types";
 import { AdminAuthors } from "./admin-authors";
 import { MediaUploader } from "./media-uploader";
 import { PublicationContent } from "./publication-content";
+import { AdminDataTools, exportExcel, isWithinDate } from "./admin-data-tools";
 
 type EditorView = "write" | "preview";
 
 export function AdminPublications({ posts, authors, onNotice }: { posts: Post[]; authors: Author[]; onNotice: (message: string) => void }) {
   const [authorList, setAuthorList] = useState(authors);
   const [publicationList, setPublicationList] = useState(posts);
-  const emptyPost = (): Partial<Post> => ({ title: "", slug: "", excerpt: "", body: "", category: "Perspective", image_url: "", author_id: authorList[0]?.id ?? "", published_at: new Date().toISOString().slice(0, 10), featured: false });
+  const emptyPost = (): Partial<Post> => ({ title: "", slug: "", excerpt: "", body: "", category: "Perspective", image_url: "", author_id: authorList[0]?.id ?? "", published_at: new Date().toISOString().slice(0, 10), featured: false, published: false });
   const [draft, setDraft] = useState<Partial<Post>>(emptyPost);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<EditorView>("write");
   const [inlineImage, setInlineImage] = useState("");
   const [authorsOpen, setAuthorsOpen] = useState(false);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -56,12 +59,14 @@ export function AdminPublications({ posts, authors, onNotice }: { posts: Post[];
     setDraft({ ...draft, title, slug });
   }
 
-  async function savePublication() {
-    onNotice("Publishing…");
-    const response = await fetch("/api/admin/posts", { method: editingSlug ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...draft, original_slug: editingSlug }) });
+  async function savePublication(published: boolean) {
+    onNotice(published ? "Publishing…" : "Saving draft…");
+    const response = await fetch("/api/admin/posts", { method: editingSlug ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...draft, published, original_slug: editingSlug }) });
     if (response.ok) window.location.reload();
     else onNotice((await response.json()).error);
   }
+
+  const filteredPublications = publicationList.filter((post) => isWithinDate(post.published_at || post.created_at, dateFrom, dateTo));
 
   async function deletePublication(slug: string) {
     if (!window.confirm("Delete this publication? This cannot be undone.")) return;
@@ -114,8 +119,9 @@ export function AdminPublications({ posts, authors, onNotice }: { posts: Post[];
   }
 
   return <section className="publication-manager">
-    <header className="publication-manager-head"><div><p className="eyebrow">Content library</p><h2>Published articles</h2><p>Create, edit and review the performance of Terratora publications.</p></div><div className="publication-manager-actions"><button type="button" onClick={() => setAuthorsOpen(true)}>Manage authors</button><button type="button" className="button button-dark" onClick={newPublication}>New Publication <span aria-hidden="true">＋</span></button></div></header>
-    <div className="publication-table-wrap"><table className="publication-table"><thead><tr><th>Publication</th><th>Author</th><th>Published</th><th>Engagement</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{publicationList.map((post) => <tr key={post.slug}><td><strong>{post.title}</strong><small>{post.category}</small></td><td><div className="publication-author-cell">{post.author_avatar_url ? <img src={post.author_avatar_url} alt="" /> : <span>{initials(post.author_name)}</span>}<small>{post.author_name || "Terratora Editorial Team"}</small></div></td><td><time>{new Date(post.published_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</time></td><td><small>{(post.read_count ?? 0).toLocaleString()} reads<br />{(post.share_count ?? 0).toLocaleString()} shares<br />{(post.like_count ?? 0).toLocaleString()} likes</small></td><td><div className="admin-item-actions"><button type="button" onClick={() => editPublication(post)}>Edit</button><a href={`/journal/${post.slug}`} target="_blank">View ↗</a><button type="button" className="danger" onClick={() => deletePublication(post.slug)}>Delete</button></div></td></tr>)}</tbody></table>{!publicationList.length && <div className="empty-state">No publications yet.</div>}</div>
+    <header className="publication-manager-head"><div><p className="eyebrow">Content library</p><h2>Publications</h2><p>Save drafts, publish when ready and review article performance.</p></div><div className="publication-manager-actions"><button type="button" onClick={() => setAuthorsOpen(true)}>Manage authors</button><button type="button" className="button button-dark" onClick={newPublication}>New Publication <span aria-hidden="true">＋</span></button></div></header>
+    <AdminDataTools from={dateFrom} to={dateTo} onFromChange={setDateFrom} onToChange={setDateTo} onClear={() => { setDateFrom(""); setDateTo(""); }} count={filteredPublications.length} onExport={() => exportExcel("terratora-publications", filteredPublications.map(({ body, ...post }) => ({ ...post, body })))} />
+    <div className="publication-table-wrap"><table className="publication-table"><thead><tr><th>Publication</th><th>Author</th><th>Status/date</th><th>Engagement</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{filteredPublications.map((post) => <tr key={post.slug}><td><strong>{post.title}</strong><small>{post.category}</small></td><td><div className="publication-author-cell">{post.author_avatar_url ? <img src={post.author_avatar_url} alt="" /> : <span>{initials(post.author_name)}</span>}<small>{post.author_name || "Terratora Editorial Team"}</small></div></td><td><span className={`newsletter-status ${post.published ? "sent" : "draft"}`}>{post.published ? "Published" : "Draft"}</span><time>{new Date(post.published_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</time></td><td><small>{(post.read_count ?? 0).toLocaleString()} reads<br />{(post.share_count ?? 0).toLocaleString()} shares<br />{(post.like_count ?? 0).toLocaleString()} likes</small></td><td><div className="admin-item-actions"><button type="button" onClick={() => editPublication(post)}>Edit</button>{post.published && <a href={`/journal/${post.slug}`} target="_blank">View ↗</a>}<button type="button" className="danger" onClick={() => deletePublication(post.slug)}>Delete</button></div></td></tr>)}</tbody></table>{!filteredPublications.length && <div className="empty-state">No publications match this date range.</div>}</div>
 
     {open && <div className="publication-drawer-layer"><button className="publication-drawer-backdrop" type="button" aria-label="Close publication editor" onClick={closeEditor} /><aside className="publication-drawer" role="dialog" aria-modal="true" aria-labelledby="publication-editor-title"><header><div><p className="eyebrow">{editingSlug ? "Edit publication" : "New publication"}</p><h2 id="publication-editor-title">{editingSlug ? draft.title : "Create a publication"}</h2></div><button type="button" onClick={closeEditor} aria-label="Close publication editor">×</button></header><div className="publication-drawer-body">
       <div className="drawer-field-grid"><label className="field"><span>Article title</span><input value={String(draft.title ?? "")} onChange={(event) => updateTitle(event.target.value)} /></label><label className="field"><span>Web address</span><input value={String(draft.slug ?? "")} onChange={(event) => setDraft({ ...draft, slug: event.target.value })} /><small className="field-help">Created automatically from the title.</small></label></div>
@@ -126,7 +132,7 @@ export function AdminPublications({ posts, authors, onNotice }: { posts: Post[];
       <section className="markdown-editor"><div className="markdown-editor-heading"><div><h3>Article body</h3><p>Use the toolbar or Markdown syntax to format the publication.</p></div><div className="editor-view-switch"><button type="button" className={view === "write" ? "active" : ""} onClick={() => setView("write")}>Write</button><button type="button" className={view === "preview" ? "active" : ""} onClick={() => setView("preview")}>Preview</button></div></div>
         {view === "write" ? <><div className="markdown-toolbar" aria-label="Text formatting"><button type="button" onClick={() => insertMarkdown("**", "**", "Bold text")}><b>B</b><span>Bold</span></button><button type="button" onClick={() => setHeading("##")}><b>H2</b><span>Larger heading</span></button><button type="button" onClick={() => setHeading("###")}><b>H3</b><span>Smaller heading</span></button><button type="button" onClick={() => setHeading("normal")}><b>¶</b><span>Normal text</span></button><button type="button" onClick={() => insertMarkdown("\n\n![", "](https://image-url)\n\n", "Image description")}><b>▧</b><span>Image URL</span></button></div><textarea ref={bodyRef} className="markdown-textarea" rows={18} value={String(draft.body ?? "")} onChange={(event) => setDraft({ ...draft, body: event.target.value })} placeholder="Write your article here…" /><div className="inline-image-inserter"><MediaUploader label="Upload an image for the article body" value={inlineImage} onChange={setInlineImage} />{inlineImage && <button type="button" className="button button-dark" onClick={insertInlineImage}>Insert image at cursor →</button>}</div></> : <PublicationContent body={String(draft.body ?? "")} className="markdown-preview" />}
       </section>
-    </div><footer><p>Publishing makes this article visible on the website.</p><div><button type="button" className="text-button" onClick={closeEditor}>Cancel</button><button type="button" className="button button-dark" onClick={savePublication}>{editingSlug ? "Save changes →" : "Publish article →"}</button></div></footer></aside></div>}
+    </div><footer><p>Drafts remain private. Publishing makes the article visible on the website.</p><div><button type="button" className="text-button" onClick={closeEditor}>Cancel</button><button type="button" className="text-button" onClick={() => void savePublication(false)}>Save draft</button><button type="button" className="button button-dark" onClick={() => void savePublication(true)}>{draft.published ? "Save & keep published →" : "Publish article →"}</button></div></footer></aside></div>}
     {authorsOpen && <AdminAuthors authors={authorList} onChange={updateAuthors} onClose={() => setAuthorsOpen(false)} onNotice={onNotice} />}
   </section>;
 }

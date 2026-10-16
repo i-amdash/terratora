@@ -25,12 +25,13 @@ For an existing project, run these migrations in order:
 1. `supabase/migrations/20261007_admin_users_roles_permissions.sql` before opening the new **Users** section. Existing CMS administrators are promoted to Owner by this migration.
 2. `supabase/migrations/20261008_site_analytics.sql` to enable consent-based visit and page-view reporting on the admin dashboard.
 3. `supabase/migrations/20261014_newsletter_subscriptions.sql` to add subscribers, newsletter delivery history and the newsletter permission.
+4. `supabase/migrations/20261016_admin_workflows_and_geo_analytics.sql` to add newsletter drafts and scheduling, provider settings, and approximate visitor location analytics.
 
 The service-role key is server-only and must never be prefixed with `NEXT_PUBLIC_`.
 
 ## Email notifications
 
-Create a Resend API key, verify your sending domain, then set `RESEND_API_KEY`, `NOTIFICATION_EMAIL`, and `EMAIL_FROM`. Enquiries and bookings are saved even if email delivery is unavailable. Newsletters require both `RESEND_API_KEY` and a verified `EMAIL_FROM`; each recipient receives an individual message with a private unsubscribe link.
+Create a Resend API key, verify your sending domain, then set `RESEND_API_KEY`, `NOTIFICATION_EMAIL`, and `EMAIL_FROM`. Enquiries and bookings are saved even if email delivery is unavailable. Newsletters require both `RESEND_API_KEY` and a verified `EMAIL_FROM`; subscriber contacts are synchronised to a dedicated Resend segment when a newsletter is sent or scheduled. Resend handles scheduled delivery, while each recipient keeps a private link to confirm unsubscribe and data deletion. You may optionally set `RESEND_SEGMENT_ID` to reuse an existing segment; otherwise the application creates and remembers one automatically.
 
 ## Deployment
 

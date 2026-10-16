@@ -32,11 +32,11 @@ export default async function AdminPage() {
     canManageUsers ? client.from("admin_users").select("*").order("created_at",{ascending:true}) : empty,
     canManageUsers ? client.auth.admin.listUsers({ page: 1, perPage: 1000 }) : Promise.resolve({ data: { users: [] }, error: null }),
     canManageNewsletters ? client.from("subscribers").select("id,name,email,consent_at,consent_source,subscribed_at,updated_at", { count: "exact" }).order("subscribed_at", { ascending: false }).range(0, 24) : emptyCounted,
-    canManageNewsletters ? client.from("newsletters").select("id,subject,body,status,recipient_count,last_error,created_at,sent_at").order("created_at", { ascending: false }).limit(100) : empty,
+    canManageNewsletters ? client.from("newsletters").select("id,subject,body,status,recipient_count,last_error,created_at,sent_at,scheduled_for,resend_broadcast_id,updated_at").order("created_at", { ascending: false }) : empty,
   ]) : [{data:null},{data:[]},{data:[]},{data:[]},{data:null},{data:[]},{data:[]},{data:{users:[]}},{data:[],count:0},{data:[]}];
   const saved = (contentResult.data?.content ?? {}) as Partial<typeof defaultContent>;
   const content = mergeSiteContent(saved);
-  const posts = ((postsResult.data ?? defaultPosts) as Post[]).map((post) => ({ ...post, image_url: post.image_url || defaultPosts.find((fallback) => fallback.slug === post.slug)?.image_url }));
+  const posts = ((postsResult.data ?? defaultPosts) as Post[]).map((post) => ({ ...post, published: post.published !== false, image_url: post.image_url || defaultPosts.find((fallback) => fallback.slug === post.slug)?.image_url }));
   const authUsers = new Map((authUsersResult.data?.users ?? []).map((item) => [item.id, item]));
   const adminUsers = (profilesResult.data ?? []).map((item) => {
     const authUser = authUsers.get(String(item.user_id));
@@ -60,7 +60,7 @@ export default async function AdminPage() {
 
 function normaliseAnalytics(value: unknown): SiteAnalyticsSummary {
   const data = value && typeof value === "object" ? value as Record<string, unknown> : {};
-  const rows = (key: "months" | "top_pages") => Array.isArray(data[key]) ? data[key] as Record<string, unknown>[] : [];
+  const rows = (key: "months" | "top_pages" | "top_locations") => Array.isArray(data[key]) ? data[key] as Record<string, unknown>[] : [];
   return {
     total_visits: toNumber(data.total_visits),
     total_page_views: toNumber(data.total_page_views),
@@ -68,6 +68,7 @@ function normaliseAnalytics(value: unknown): SiteAnalyticsSummary {
     views_this_month: toNumber(data.views_this_month),
     months: rows("months").map((item) => ({ month: String(item.month ?? ""), page_views: toNumber(item.page_views), visits: toNumber(item.visits) })),
     top_pages: rows("top_pages").map((item) => ({ path: String(item.path ?? "/"), page_views: toNumber(item.page_views), visits: toNumber(item.visits) })),
+    top_locations: rows("top_locations").map((item) => ({ country_code: String(item.country_code ?? "Unknown"), city: String(item.city ?? "Unknown"), page_views: toNumber(item.page_views), visits: toNumber(item.visits) })),
   };
 }
 

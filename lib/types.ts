@@ -63,6 +63,8 @@ export type Post = {
   author_name?: string;
   author_avatar_url?: string;
   featured?: boolean;
+  published?: boolean;
+  created_at?: string;
   read_count?: number;
   share_count?: number;
   like_count?: number;
@@ -97,6 +99,7 @@ export type SiteAnalyticsSummary = {
   views_this_month: number;
   months: { month: string; page_views: number; visits: number }[];
   top_pages: { path: string; page_views: number; visits: number }[];
+  top_locations: { country_code: string; city: string; page_views: number; visits: number }[];
 };
 
 export type PublicationComment = {
@@ -123,9 +126,12 @@ export type Newsletter = {
   id: string;
   subject: string;
   body: string;
-  status: "sending" | "sent" | "failed";
+  status: "draft" | "sending" | "scheduled" | "sent" | "failed" | "canceled";
   recipient_count: number;
   last_error?: string | null;
   created_at: string;
   sent_at?: string | null;
+  scheduled_for?: string | null;
+  resend_broadcast_id?: string | null;
+  updated_at?: string;
 };
