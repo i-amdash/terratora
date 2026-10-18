@@ -117,7 +117,7 @@ export type PublicationComment = {
 
 export type AdminPublicationComment = PublicationComment & {
   post_id: string;
-  author_email: string;
+  author_email?: string | null;
   post_title: string;
   post_slug: string;
   status: "pending" | "published" | "hidden";

@@ -239,7 +239,7 @@ create table if not exists public.publication_comments (
   post_id uuid not null references public.posts(id) on delete cascade,
   parent_id uuid references public.publication_comments(id) on delete cascade,
   author_name text not null,
-  author_email text not null,
+  author_email text,
   body text not null,
   like_count bigint not null default 0,
   status text not null default 'published' check (status in ('pending', 'published', 'hidden')),
@@ -324,6 +324,7 @@ alter table public.messages add constraint messages_status_check check (status i
 
 alter table public.posts add column if not exists comments_require_approval boolean not null default false;
 alter table public.publication_comments add column if not exists is_team boolean not null default false;
+alter table public.publication_comments alter column author_email drop not null;
 alter table public.publication_comments drop constraint if exists publication_comments_status_check;
 alter table public.publication_comments add constraint publication_comments_status_check check (status in ('pending', 'published', 'hidden'));
 

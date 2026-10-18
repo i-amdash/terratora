@@ -29,7 +29,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   const authorEmail = clean(input?.author_email, 240).toLowerCase();
   const body = clean(input?.body, 2000);
   const parentId = clean(input?.parent_id, 80) || null;
-  if (!authorName || !body || !/^\S+@\S+\.\S+$/.test(authorEmail)) return NextResponse.json({ error: "Enter your name, a valid email address and your comment." }, { status: 400 });
+  if (!authorName || !body) return NextResponse.json({ error: "Enter your name and your comment." }, { status: 400 });
+  if (authorEmail && !/^\S+@\S+\.\S+$/.test(authorEmail)) return NextResponse.json({ error: "Enter a valid email address or leave the email field empty." }, { status: 400 });
   const client = createAdminClient();
   if (!client) return NextResponse.json({ error: "Comments are unavailable." }, { status: 503 });
   const { data: post } = await client.from("posts").select("id,comments_require_approval").eq("slug", slug).eq("published", true).maybeSingle();
@@ -39,7 +40,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (!parent) return NextResponse.json({ error: "The comment you are replying to is unavailable." }, { status: 400 });
   }
   const status = post.comments_require_approval ? "pending" : "published";
-  const { data, error } = await client.from("publication_comments").insert({ post_id: post.id, parent_id: parentId, author_name: authorName, author_email: authorEmail, body, status }).select("id,parent_id,author_name,body,like_count,status,is_team,created_at").single();
+  const { data, error } = await client.from("publication_comments").insert({ post_id: post.id, parent_id: parentId, author_name: authorName, author_email: authorEmail || null, body, status }).select("id,parent_id,author_name,body,like_count,status,is_team,created_at").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ...data, liked: false, pending: status === "pending" }, { status: 201 });
 }
