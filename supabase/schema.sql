@@ -52,6 +52,7 @@ create table if not exists public.posts (
   read_count bigint not null default 0,
   share_count bigint not null default 0,
   like_count bigint not null default 0,
+  comments_require_approval boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -108,7 +109,7 @@ create table if not exists public.messages (
   organisation text,
   interest text,
   message text not null,
-  status text not null default 'new',
+  status text not null default 'new' check (status in ('new', 'in_progress', 'completed')),
   created_at timestamptz not null default now()
 );
 
@@ -123,7 +124,8 @@ create table if not exists public.bookings (
   timezone text not null default 'Africa/Lagos',
   session_type text not null,
   message text not null,
-  status text not null default 'pending',
+  status text not null default 'pending' check (status in ('pending', 'scheduled', 'completed', 'cancelled')),
+  scheduled_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -240,7 +242,8 @@ create table if not exists public.publication_comments (
   author_email text not null,
   body text not null,
   like_count bigint not null default 0,
-  status text not null default 'published' check (status in ('published', 'hidden')),
+  status text not null default 'published' check (status in ('pending', 'published', 'hidden')),
+  is_team boolean not null default false,
   created_at timestamptz not null default now()
 );
 
@@ -250,6 +253,10 @@ create table if not exists public.publication_comment_likes (
   created_at timestamptz not null default now(),
   primary key (comment_id, visitor_key)
 );
+
+create index if not exists publication_comments_status_created_idx on public.publication_comments (status, created_at desc);
+create index if not exists messages_status_created_idx on public.messages (status, created_at desc);
+create index if not exists bookings_status_scheduled_idx on public.bookings (status, scheduled_at);
 
 create or replace function public.toggle_post_like(post_slug text, visitor_token text)
 returns table(like_count bigint, liked boolean)
@@ -308,6 +315,17 @@ alter table public.bookings add column if not exists timezone text;
 update public.bookings set timezone = 'Africa/Lagos' where timezone is null;
 alter table public.bookings alter column timezone set default 'Africa/Lagos';
 alter table public.bookings alter column timezone set not null;
+alter table public.bookings add column if not exists scheduled_at timestamptz;
+alter table public.bookings drop constraint if exists bookings_status_check;
+alter table public.bookings add constraint bookings_status_check check (status in ('pending', 'scheduled', 'completed', 'cancelled'));
+
+alter table public.messages drop constraint if exists messages_status_check;
+alter table public.messages add constraint messages_status_check check (status in ('new', 'in_progress', 'completed'));
+
+alter table public.posts add column if not exists comments_require_approval boolean not null default false;
+alter table public.publication_comments add column if not exists is_team boolean not null default false;
+alter table public.publication_comments drop constraint if exists publication_comments_status_check;
+alter table public.publication_comments add constraint publication_comments_status_check check (status in ('pending', 'published', 'hidden'));
 
 alter table public.site_page_views add column if not exists country_code text;
 alter table public.site_page_views add column if not exists region text;

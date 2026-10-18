@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import type { Post, SiteAnalyticsSummary } from "@/lib/types";
 
-export type AdminRecord = Record<string, string | number | boolean | null>;
+export type AdminRecord = Record<string, string | number | boolean | null | undefined>;
 type Destination = "journal" | "messages" | "bookings";
 
 export function AdminOverview({ posts, messages, bookings, analytics, onNavigate }: { posts: Post[]; messages: AdminRecord[]; bookings: AdminRecord[]; analytics: SiteAnalyticsSummary; onNavigate: (destination: Destination) => void }) {

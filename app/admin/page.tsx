@@ -6,7 +6,7 @@ import { isAdminRole, normaliseAdminPermissions } from "@/lib/admin-permissions"
 import { defaultContent, defaultPosts } from "@/lib/default-content";
 import { mergeSiteContent } from "@/lib/content";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/server";
-import type { AdminUser, Author, Newsletter, Post, SiteAnalyticsSummary, Subscriber } from "@/lib/types";
+import type { AdminBooking, AdminMessage, AdminPublicationComment, AdminUser, Author, Newsletter, Post, SiteAnalyticsSummary, Subscriber } from "@/lib/types";
 
 export const metadata: Metadata = { title: "CMS", robots: { index: false, follow: false, noarchive: true } };
 
@@ -22,9 +22,10 @@ export default async function AdminPage() {
   const canManageNewsletters = hasAdminPermission(profile, "manage_newsletters");
   const empty = Promise.resolve({ data: [] as Record<string, unknown>[] });
   const emptyCounted = Promise.resolve({ data: [] as Record<string, unknown>[], count: 0 });
-  const [contentResult, postsResult, messagesResult, bookingsResult, analyticsResult, authorsResult, profilesResult, authUsersResult, subscribersResult, newslettersResult] = client ? await Promise.all([
+  const [contentResult, postsResult, commentsResult, messagesResult, bookingsResult, analyticsResult, authorsResult, profilesResult, authUsersResult, subscribersResult, newslettersResult] = client ? await Promise.all([
     client.from("site_content").select("content").eq("id","main").maybeSingle(),
     canPublish ? client.from("posts").select("*").order("published_at",{ascending:false}) : empty,
+    canPublish ? client.from("publication_comments").select("id,post_id,parent_id,author_name,author_email,body,like_count,status,is_team,created_at").order("created_at", { ascending: false }) : empty,
     canViewMessages ? client.from("messages").select("*").order("created_at",{ascending:false}) : empty,
     canViewBookings ? client.from("bookings").select("*").order("created_at",{ascending:false}) : empty,
     client.rpc("get_site_analytics"),
@@ -33,10 +34,15 @@ export default async function AdminPage() {
     canManageUsers ? client.auth.admin.listUsers({ page: 1, perPage: 1000 }) : Promise.resolve({ data: { users: [] }, error: null }),
     canManageNewsletters ? client.from("subscribers").select("id,name,email,consent_at,consent_source,subscribed_at,updated_at", { count: "exact" }).order("subscribed_at", { ascending: false }).range(0, 24) : emptyCounted,
     canManageNewsletters ? client.from("newsletters").select("id,subject,body,status,recipient_count,last_error,created_at,sent_at,scheduled_for,resend_broadcast_id,updated_at").order("created_at", { ascending: false }) : empty,
-  ]) : [{data:null},{data:[]},{data:[]},{data:[]},{data:null},{data:[]},{data:[]},{data:{users:[]}},{data:[],count:0},{data:[]}];
+  ]) : [{data:null},{data:[]},{data:[]},{data:[]},{data:[]},{data:null},{data:[]},{data:[]},{data:{users:[]}},{data:[],count:0},{data:[]}];
   const saved = (contentResult.data?.content ?? {}) as Partial<typeof defaultContent>;
   const content = mergeSiteContent(saved);
   const posts = ((postsResult.data ?? defaultPosts) as Post[]).map((post) => ({ ...post, published: post.published !== false, image_url: post.image_url || defaultPosts.find((fallback) => fallback.slug === post.slug)?.image_url }));
+  const postLookup = new Map(posts.map((post) => [post.id, post]));
+  const comments = (commentsResult.data ?? []).map((comment) => {
+    const post = postLookup.get(String(comment.post_id));
+    return { ...comment, post_title: post?.title ?? "Publication", post_slug: post?.slug ?? "" } as AdminPublicationComment;
+  });
   const authUsers = new Map((authUsersResult.data?.users ?? []).map((item) => [item.id, item]));
   const adminUsers = (profilesResult.data ?? []).map((item) => {
     const authUser = authUsers.get(String(item.user_id));
@@ -55,7 +61,7 @@ export default async function AdminPage() {
   if (canManageUsers && !adminUsers.some((item) => item.id === user.id)) {
     adminUsers.unshift({ id: user.id, email: user.email ?? "", full_name: profile.full_name, role: profile.role, permissions: profile.permissions, is_active: true, created_at: user.created_at, last_sign_in_at: user.last_sign_in_at });
   }
-  return <AdminDashboard currentUserId={user.id} email={user.email ?? "Admin"} role={profile.role} permissions={profile.permissions} users={adminUsers} content={content} posts={posts} authors={(authorsResult.data ?? []) as Author[]} subscribers={(subscribersResult.data ?? []) as Subscriber[]} subscriberCount={subscribersResult.count ?? 0} newsletters={(newslettersResult.data ?? []) as Newsletter[]} messages={(messagesResult.data ?? [])} bookings={(bookingsResult.data ?? [])} analytics={normaliseAnalytics(analyticsResult.data)} />;
+  return <AdminDashboard currentUserId={user.id} email={user.email ?? "Admin"} role={profile.role} permissions={profile.permissions} users={adminUsers} content={content} posts={posts} comments={comments} authors={(authorsResult.data ?? []) as Author[]} subscribers={(subscribersResult.data ?? []) as Subscriber[]} subscriberCount={subscribersResult.count ?? 0} newsletters={(newslettersResult.data ?? []) as Newsletter[]} messages={(messagesResult.data ?? []) as AdminMessage[]} bookings={(bookingsResult.data ?? []) as AdminBooking[]} analytics={normaliseAnalytics(analyticsResult.data)} />;
 }
 
 function normaliseAnalytics(value: unknown): SiteAnalyticsSummary {

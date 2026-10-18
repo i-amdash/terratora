@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { ArrowRight } from "./icons";
+import { timezoneLabel } from "@/lib/timezones";
 
 type FormState = "idle" | "sending" | "success" | "error";
 
@@ -28,17 +29,6 @@ const fallbackTimezones = [
   "America/Chicago",
   "America/Los_Angeles",
 ];
-
-function timezoneLabel(timezone: string) {
-  try {
-    const offset = new Intl.DateTimeFormat("en", { timeZone: timezone, timeZoneName: "shortOffset" })
-      .formatToParts(new Date())
-      .find((part) => part.type === "timeZoneName")?.value;
-    return `${timezone.replaceAll("_", " ")}${offset ? ` (${offset})` : ""}`;
-  } catch {
-    return timezone;
-  }
-}
 
 function Field({ label, name, type = "text", required = true, placeholder = "" }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string }) {
   return <label className="field"><span>{label}{required && " *"}</span><input name={name} type={type} required={required} placeholder={placeholder} /></label>;

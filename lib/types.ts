@@ -68,6 +68,7 @@ export type Post = {
   read_count?: number;
   share_count?: number;
   like_count?: number;
+  comments_require_approval?: boolean;
   updated_at?: string;
 };
 
@@ -109,6 +110,47 @@ export type PublicationComment = {
   body: string;
   like_count: number;
   liked?: boolean;
+  status?: "pending" | "published" | "hidden";
+  is_team?: boolean;
+  created_at: string;
+};
+
+export type AdminPublicationComment = PublicationComment & {
+  post_id: string;
+  author_email: string;
+  post_title: string;
+  post_slug: string;
+  status: "pending" | "published" | "hidden";
+  is_team: boolean;
+};
+
+export type AdminMessage = {
+  [key: string]: string | number | boolean | null | undefined;
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  organisation?: string | null;
+  interest?: string | null;
+  message: string;
+  status: "new" | "in_progress" | "completed";
+  created_at: string;
+};
+
+export type AdminBooking = {
+  [key: string]: string | number | boolean | null | undefined;
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  organisation?: string | null;
+  preferred_date: string;
+  preferred_time: string;
+  timezone: string;
+  session_type: string;
+  message: string;
+  status: "pending" | "scheduled" | "completed" | "cancelled";
+  scheduled_at?: string | null;
   created_at: string;
 };
 

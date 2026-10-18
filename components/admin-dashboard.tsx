@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AdminPermission, AdminRole } from "@/lib/admin-permissions";
-import type { AdminUser, Author, Newsletter, Post, SiteAnalyticsSummary, SiteContent, Subscriber } from "@/lib/types";
+import type { AdminBooking, AdminMessage, AdminPublicationComment, AdminUser, Author, Newsletter, Post, SiteAnalyticsSummary, SiteContent, Subscriber } from "@/lib/types";
 import { createBrowserSupabase } from "@/lib/supabase/browser";
 import { AdminContentEditor } from "./admin-content-editor";
 import { AdminOverview, type AdminRecord } from "./admin-overview";
@@ -10,14 +10,17 @@ import { AdminPublications } from "./admin-publications";
 import { AdminUsers } from "./admin-users";
 import { AdminNewsletters } from "./admin-newsletters";
 import { AdminSubscribers } from "./admin-subscribers";
+import { AdminComments } from "./admin-comments";
+import { AdminMessages } from "./admin-messages";
+import { AdminBookings } from "./admin-bookings";
 import { AdminDataTools, exportExcel, isWithinDate } from "./admin-data-tools";
 import { AdminConfirmDialog, AdminToast, type AdminConfirmation, type AdminToastTone, type ConfirmAdminAction } from "./admin-feedback";
 
-type Tab = "overview" | "content" | "journal" | "subscribers" | "newsletters" | "messages" | "bookings" | "users";
-const tabLabels: Record<Tab, string> = { overview: "Dashboard", content: "Website", journal: "Publications", subscribers: "Subscribers", newsletters: "Newsletters", messages: "Messages", bookings: "Bookings", users: "Users" };
-const tabPermissions: Partial<Record<Tab, AdminPermission>> = { content: "manage_content", journal: "manage_publications", subscribers: "manage_newsletters", newsletters: "manage_newsletters", messages: "view_messages", bookings: "view_bookings", users: "manage_users" };
+type Tab = "overview" | "content" | "journal" | "comments" | "subscribers" | "newsletters" | "messages" | "bookings" | "users";
+const tabLabels: Record<Tab, string> = { overview: "Dashboard", content: "Website", journal: "Publications", comments: "Comments", subscribers: "Subscribers", newsletters: "Newsletters", messages: "Messages", bookings: "Bookings", users: "Users" };
+const tabPermissions: Partial<Record<Tab, AdminPermission>> = { content: "manage_content", journal: "manage_publications", comments: "manage_publications", subscribers: "manage_newsletters", newsletters: "manage_newsletters", messages: "view_messages", bookings: "view_bookings", users: "manage_users" };
 
-export function AdminDashboard({ content, posts, authors, subscribers, subscriberCount, newsletters, messages, bookings, analytics, users, currentUserId, email, role, permissions }: { content: SiteContent; posts: Post[]; authors: Author[]; subscribers: Subscriber[]; subscriberCount: number; newsletters: Newsletter[]; messages: AdminRecord[]; bookings: AdminRecord[]; analytics: SiteAnalyticsSummary; users: AdminUser[]; currentUserId: string; email: string; role: AdminRole; permissions: AdminPermission[] }) {
+export function AdminDashboard({ content, posts, comments, authors, subscribers, subscriberCount, newsletters, messages, bookings, analytics, users, currentUserId, email, role, permissions }: { content: SiteContent; posts: Post[]; comments: AdminPublicationComment[]; authors: Author[]; subscribers: Subscriber[]; subscriberCount: number; newsletters: Newsletter[]; messages: AdminMessage[]; bookings: AdminBooking[]; analytics: SiteAnalyticsSummary; users: AdminUser[]; currentUserId: string; email: string; role: AdminRole; permissions: AdminPermission[] }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [draft, setDraft] = useState<SiteContent>(content);
   const [toast, setToast] = useState<{ id: number; message: string; tone: AdminToastTone } | null>(null);
@@ -71,10 +74,11 @@ export function AdminDashboard({ content, posts, authors, subscribers, subscribe
       {tab === "overview" && <AdminOverview posts={posts} messages={messages} bookings={bookings} analytics={analytics} onNavigate={navigate} />}
       {tab === "content" && <AdminContentEditor value={draft} onChange={setDraft} onSave={saveContent} />}
       {tab === "journal" && <AdminPublications posts={posts} authors={authors} onNotice={notify} onConfirm={confirmAction} />}
+      {tab === "comments" && <AdminComments initialComments={comments} onNotice={notify} onConfirm={confirmAction} />}
       {tab === "subscribers" && <AdminSubscribers initialSubscribers={subscribers} initialTotal={subscriberTotal} onNotice={notify} onConfirm={confirmAction} onTotalChange={setSubscriberTotal} />}
       {tab === "newsletters" && <AdminNewsletters subscriberCount={subscriberTotal} newsletters={newsletters} onNotice={notify} onConfirm={confirmAction} />}
-      {tab === "messages" && <RecordList rows={messages} empty="No messages yet." filename="terratora-messages" fields={["first_name","last_name","email","organisation","interest","message","created_at"]} />}
-      {tab === "bookings" && <RecordList rows={bookings} empty="No session requests yet." filename="terratora-bookings" fields={["first_name","last_name","email","organisation","session_type","preferred_date","preferred_time","timezone","message","status"]} />}
+      {tab === "messages" && <AdminMessages initialMessages={messages} onNotice={notify} onConfirm={confirmAction} />}
+      {tab === "bookings" && <AdminBookings initialBookings={bookings} onNotice={notify} />}
       {tab === "users" && <AdminUsers initialUsers={users} currentUserId={currentUserId} currentRole={role} onNotice={notify} />}
     </section>
     {toast && <AdminToast key={toast.id} message={toast.message} tone={toast.tone} onClose={() => setToast(null)} />}

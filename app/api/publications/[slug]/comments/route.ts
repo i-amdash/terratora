@@ -8,9 +8,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
   if (!client) return NextResponse.json({ error: "Comments are unavailable." }, { status: 503 });
   const { data: post } = await client.from("posts").select("id").eq("slug", slug).eq("published", true).maybeSingle();
   if (!post) return NextResponse.json({ error: "Publication not found." }, { status: 404 });
-  const { data, error } = await client.from("publication_comments").select("id,parent_id,author_name,body,like_count,created_at").eq("post_id", post.id).eq("status", "published").order("created_at", { ascending: true });
+  const { data, error } = await client.from("publication_comments").select("id,parent_id,author_name,body,like_count,is_team,created_at").eq("post_id", post.id).eq("status", "published").order("created_at", { ascending: true });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  const comments = data ?? [];
+  const published = data ?? [];
+  const publishedIds = new Set(published.map((comment) => comment.id));
+  const comments = published.filter((comment) => !comment.parent_id || publishedIds.has(comment.parent_id));
   let likedIds = new Set<string>();
   if (validVisitorKey(visitorKey) && comments.length) {
     const { data: likes } = await client.from("publication_comment_likes").select("comment_id").eq("visitor_key", visitorKey).in("comment_id", comments.map((comment) => comment.id));
@@ -30,15 +32,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   if (!authorName || !body || !/^\S+@\S+\.\S+$/.test(authorEmail)) return NextResponse.json({ error: "Enter your name, a valid email address and your comment." }, { status: 400 });
   const client = createAdminClient();
   if (!client) return NextResponse.json({ error: "Comments are unavailable." }, { status: 503 });
-  const { data: post } = await client.from("posts").select("id").eq("slug", slug).eq("published", true).maybeSingle();
+  const { data: post } = await client.from("posts").select("id,comments_require_approval").eq("slug", slug).eq("published", true).maybeSingle();
   if (!post) return NextResponse.json({ error: "Publication not found." }, { status: 404 });
   if (parentId) {
     const { data: parent } = await client.from("publication_comments").select("id").eq("id", parentId).eq("post_id", post.id).eq("status", "published").maybeSingle();
     if (!parent) return NextResponse.json({ error: "The comment you are replying to is unavailable." }, { status: 400 });
   }
-  const { data, error } = await client.from("publication_comments").insert({ post_id: post.id, parent_id: parentId, author_name: authorName, author_email: authorEmail, body, status: "published" }).select("id,parent_id,author_name,body,like_count,created_at").single();
+  const status = post.comments_require_approval ? "pending" : "published";
+  const { data, error } = await client.from("publication_comments").insert({ post_id: post.id, parent_id: parentId, author_name: authorName, author_email: authorEmail, body, status }).select("id,parent_id,author_name,body,like_count,status,is_team,created_at").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ ...data, liked: false }, { status: 201 });
+  return NextResponse.json({ ...data, liked: false, pending: status === "pending" }, { status: 201 });
 }
 
 function clean(value: unknown, limit: number) {

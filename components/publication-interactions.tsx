@@ -51,9 +51,9 @@ export function PublicationInteractions({ slug, initialLikes = 0 }: { slug: stri
     const response = await fetch(`/api/publications/${encodeURIComponent(slug)}/comments`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
     const result = await response.json();
     if (!response.ok) { setNotice(result.error ?? "Your comment could not be posted."); return false; }
-    setComments((current) => [...current, result as PublicationComment]);
+    if (!result.pending) setComments((current) => [...current, result as PublicationComment]);
     setReplyingTo(null);
-    setNotice("Your comment has been posted.");
+    setNotice(result.pending ? "Thank you. Your comment will appear after it has been reviewed by Terratora." : "Your comment has been posted.");
     return true;
   }
 
@@ -91,7 +91,7 @@ function CommentForm({ onSubmit, parentId, compact = false }: { onSubmit: (input
 }
 
 function CommentCard({ comment, onLike, onReply }: { comment: PublicationComment; onLike: (id: string) => void; onReply?: () => void }) {
-  return <div className="comment-card"><header><span>{initials(comment.author_name)}</span><div><strong>{comment.author_name}</strong><time>{new Date(comment.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</time></div></header><p>{comment.body}</p><footer><button type="button" className={comment.liked ? "liked" : ""} onClick={() => onLike(comment.id)} aria-pressed={comment.liked}><span aria-hidden="true">♥</span> {comment.like_count.toLocaleString()}</button>{onReply && <button type="button" onClick={onReply}>Reply</button>}</footer></div>;
+  return <div className={`comment-card${comment.is_team ? " team-comment" : ""}`}><header><span>{initials(comment.author_name)}</span><div><strong>{comment.author_name}{comment.is_team && <b className="team-comment-badge">Terratora</b>}</strong><time>{new Date(comment.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</time></div></header><p>{comment.body}</p><footer><button type="button" className={comment.liked ? "liked" : ""} onClick={() => onLike(comment.id)} aria-pressed={comment.liked}><span aria-hidden="true">♥</span> {comment.like_count.toLocaleString()}</button>{onReply && <button type="button" onClick={onReply}>Reply</button>}</footer></div>;
 }
 
 function getVisitorKey() {
